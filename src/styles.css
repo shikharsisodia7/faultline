@@ -1,5 +1,6 @@
 @import "tailwindcss" source(none);
-@import "./themes.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 /* Scan local source + SDK components for Tailwind class usage */
 @source "./**/*.{ts,tsx}";
@@ -17,81 +18,69 @@
  * they stay consistent across every preset.
  */
 @theme {
-  /* shadcn core tokens — slate (default): neutral gray on near-black, indigo accent */
-  --color-background: #0a0a0a;
-  --color-foreground: #e8eaed;
-  --color-card: #161616;
-  --color-card-foreground: #e8eaed;
-  --color-popover: #161616;
-  --color-popover-foreground: #e8eaed;
-  --color-primary: #818cf8;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #1e1e1e;
-  --color-secondary-foreground: #e8eaed;
-  --color-muted: #1e1e1e;
-  --color-muted-foreground: #9ca3af;
-  --color-accent: #262626;
-  --color-accent-foreground: #e8eaed;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #ffffff;
-  --color-border: rgba(60, 64, 67, 0.6);
-  --color-input: rgba(60, 64, 67, 0.6);
-  --color-ring: #818cf8;
-  --radius: 0.5rem;
-
   /*
-   * Map the rounded-* utilities onto --radius so a theme (or you) can change
-   * the app's shape language in one place. At the default 0.5rem these equal
-   * Tailwind's stock values, so there is no visual change until a theme
-   * overrides --radius.
+   * Faultline — instrument-panel dark theme.
+   * Near-black charcoal surfaces, off-white text, slate secondary text.
+   * Primary actions are off-white, never coral: coral is reserved for failure.
    */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --color-background: #0b0c0e;
+  --color-foreground: #e7e9ec;
+  --color-card: #111316;
+  --color-card-foreground: #e7e9ec;
+  --color-popover: #15171b;
+  --color-popover-foreground: #e7e9ec;
+  --color-primary: #e7e9ec;
+  --color-primary-foreground: #0b0c0e;
+  --color-secondary: #181b20;
+  --color-secondary-foreground: #e7e9ec;
+  --color-muted: #16191d;
+  --color-muted-foreground: #8b929c;
+  --color-accent: #1d2127;
+  --color-accent-foreground: #e7e9ec;
+  --color-destructive: #ff5a4e;
+  --color-destructive-foreground: #0b0c0e;
+  --color-border: #22262c;
+  --color-input: #2a2f36;
+  --color-ring: #5ec8b3;
+  --radius: 0.375rem;
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-2xl: calc(var(--radius) + 6px);
 
-  /* Status colors — constant across all themes */
-  --color-success: #10b981;
-  --color-success-foreground: #ffffff;
-  --color-warning: #f59e0b;
-  --color-warning-foreground: #ffffff;
-  --color-info: #3b82f6;
-  --color-info-foreground: #ffffff;
+  /* Status colors used by SDK components */
+  --color-success: #2fcf9f;
+  --color-success-foreground: #0b0c0e;
+  --color-warning: #f2a93b;
+  --color-warning-foreground: #0b0c0e;
+  --color-info: #5aa9e6;
+  --color-info-foreground: #0b0c0e;
 
-  /*
-   * Shadows — slate (default). Each theme in themes.css tunes these.
-   *
-   * Toned down 2026-05: previous values were 8px/12px offset with
-   * 32px/40px blur which read as a heavy halo under every Card on
-   * the page. New values are Linear/Stripe-style: barely-there at
-   * rest, slightly more present on hover.
-   *
-   * IMPORTANT: starter components (`Card`, `Dialog`, `CardGrid`,
-   * `Navigation`, `Toast`) intentionally use literal shadow values
-   * via `shadow-[…]` arbitrary-value classes, NOT the
-   * `shadow-card` / `shadow-card-hover` token classes Tailwind v4
-   * generates from this @theme block. Why: Tailwind's @theme directive
-   * compiles these tokens into the utility-class definitions at build
-   * time, and runtime [data-theme] overrides don't always cancel the
-   * baked baseline cleanly — apps switching themes were getting the
-   * slate value carried forward on the compiled `shadow-card` class.
-   * Sidestepping the token system in starter components is the
-   * deterministic fix. See docs/platform/theming-shadows.md.
-   */
-  --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.12);
-  --shadow-card-hover: 0 2px 8px 0 rgba(0, 0, 0, 0.16);
+  /* Faultline semantic state tokens (see docs/DESIGN.md) */
+  --color-fault: #ff5a4e;          /* failing / error / observed failure */
+  --color-fault-muted: #3a1a18;
+  --color-healthy: #2fcf9f;        /* healthy */
+  --color-healthy-muted: #10302a;
+  --color-degraded: #f2a93b;       /* degraded / warning */
+  --color-degraded-muted: #36290f;
+  --color-recovering: #5aa9e6;     /* recovering */
+  --color-sim: #6cc4ee;            /* simulated / counterfactual outcome */
+  --color-sim-muted: #13293a;
+  --color-inferred: #b9bfc8;       /* inferred correlation (drawn dashed) */
+  --color-grid: #1a1d22;
+  --color-faint: #5c636d;
 
-  /* Shell tokens: the area behind a multi-panel layout, and the raised
-     surface a page renders into. Used by templates whose (app)/_layout is a
-     shell (e.g. copilot's sidebar | panel | chat); a single-column layout
-     simply doesn't reference them. In every theme keep the panel reading as
-     elevated: dark → panel lighter than shell; light → white panel on a
-     faintly darker shell. */
-  --color-shell: #0a0a0a;
-  --color-shell-panel: #161616;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  /* Animations */
+  --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.02) inset;
+  --shadow-card-hover: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset;
+
+  --color-shell: #0b0c0e;
+  --color-shell-panel: #111316;
+
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 }
 
@@ -164,7 +153,8 @@
   }
 
   body {
-    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-sans);
+    font-feature-settings: 'ss01', 'cv11';
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -193,8 +183,21 @@
 
   /* Selection styling */
   ::selection {
-    background-color: var(--color-primary);
-    color: var(--color-primary-foreground);
+    background-color: #2b4a44;
+    color: var(--color-foreground);
+  }
+
+  /* Keyboard focus for interactive elements only (never the universal selector; see note below). */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="slider"]:focus-visible,
+  [role="option"]:focus-visible,
+  [tabindex="0"]:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
   }
 
   /*
@@ -231,4 +234,24 @@
   a, button, [role="button"], input, select, textarea {
     touch-action: manipulation;
   }
+}
+
+/* Respect reduced-motion: playback and transitions become instant. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@utility tabular { font-variant-numeric: tabular-nums; }
+
+/* Print: postmortems export as clean documents. */
+@media print {
+  html, body, #root { background: #fff !important; color: #111 !important; }
+  .no-print { display: none !important; }
+  .print-doc { color: #111 !important; background: #fff !important; }
+  .print-doc * { color: #111 !important; border-color: #ccc !important; background: transparent !important; }
 }

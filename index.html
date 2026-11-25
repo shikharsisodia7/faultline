@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <!--
   Active theme is set on the <html> element below.
-  To switch themes, change `data-theme` to any id defined in src/themes.ts.
-  Color values per theme live in src/themes.css.
+  Faultline ships one theme ("faultline"), defined in src/styles.css.
 -->
-<html lang="en" data-theme="slate">
+<html lang="en" data-theme="faultline">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/favicon.ico" />
-    <title>faultline</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#0b0c0e" />
+    <title>Faultline</title>
     <!--
       First-paint background, keyed to the data-theme attribute above.
       Without this the browser paints white until the CSS bundle arrives —
@@ -18,9 +19,7 @@
       adding or editing themes.
     -->
     <style>
-      html { background-color: #0a0a0a; color-scheme: dark; }
-      html[data-theme="paper"] { background-color: #ffffff; color-scheme: light; }
-      /* Add one line per theme you create, mirroring its --color-background. */
+      html { background-color: #0b0c0e; color-scheme: dark; }
     </style>
   </head>
   <body>
