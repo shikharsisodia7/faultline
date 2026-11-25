@@ -23,6 +23,7 @@ export default defineConfig({
   define: appIdDefine({ appDir }),
   resolve: {
     alias: {
+      '@faultline/engine': fileURLToPath(new URL('./packages/engine/src/index.ts', import.meta.url)),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },

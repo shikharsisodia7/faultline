@@ -10,6 +10,9 @@ import { prerender } from './prerender.ts'
 const appDir = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
+  define: {
+    __FAULTLINE_TARGET__: JSON.stringify('deepspace'),
+  },
   plugins: [
     react(),
     generouted(),
@@ -48,6 +51,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '@faultline/engine': fileURLToPath(new URL('./packages/engine/src/index.ts', import.meta.url)),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },

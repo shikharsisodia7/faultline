@@ -255,3 +255,11 @@
   .print-doc { color: #111 !important; background: #fff !important; }
   .print-doc * { color: #111 !important; border-color: #ccc !important; background: transparent !important; }
 }
+
+/* Failure propagation: edges are drawn caller -> callee, failures travel
+   callee -> caller, so the dash pattern moves toward the path start. */
+@keyframes fl-flow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 16; }
+}
+.fl-flow { animation: fl-flow 0.9s linear infinite; }
