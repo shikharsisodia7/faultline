@@ -94,6 +94,14 @@ export interface ScheduledChange {
   origin: 'scenario' | 'intervention'
   /** Deployment changes carry an id so a rollback intervention can invert them. */
   deploymentId?: string
+  /**
+   * The service being deployed, when it differs from the service whose
+   * parameters change (e.g. a pricing deploy that makes pricing-db queries
+   * slower). A deployment may consist of several changes sharing one id.
+   */
+  deployService?: string
+  /** How the change appears in generated telemetry. */
+  category?: 'deploy' | 'rollback' | 'config_change' | 'scale' | 'outage' | 'recovery' | 'traffic'
 }
 
 export interface SimScenario {
