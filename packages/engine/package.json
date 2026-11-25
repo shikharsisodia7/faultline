@@ -1,0 +1,14 @@
+{
+  "name": "@faultline/engine",
+  "version": "0.1.0",
+  "description": "Deterministic incident normalization, correlation, replay, and discrete-event simulation. Zero runtime dependencies.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "sideEffects": false
+}

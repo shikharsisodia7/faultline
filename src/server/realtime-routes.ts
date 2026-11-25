@@ -106,7 +106,11 @@ async function resolveDocsYjsRole(
   userId: string,
 ): Promise<DocsYjsRole | null> {
   const lookup = await getDocumentForAccess(env, docId)
-  if (lookup.kind === 'not-docs-room') return 'member'
+  // Faultline does not install the documents feature and never opens a Yjs
+  // room, so there is no record to grant a role from. Fail closed instead of
+  // treating every signed-in caller as a writer (the scaffold default), and
+  // never decide access from upstream error text alone.
+  if (lookup.kind === 'not-docs-room') return null
   if (lookup.kind === 'error') return null
   const { doc } = lookup
   if (doc.ownerId === userId || userId === env.OWNER_USER_ID) return 'admin'
