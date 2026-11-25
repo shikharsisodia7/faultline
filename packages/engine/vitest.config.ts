@@ -5,5 +5,7 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     environment: 'node',
+    // Full demo scenarios simulate ~50k requests (about 2 s each).
+    testTimeout: 60_000,
   },
 })

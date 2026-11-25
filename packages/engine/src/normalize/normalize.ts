@@ -12,6 +12,11 @@ import {
 import { detectFormat, parseByFormat, type ParseError, type RawRecord } from './parsers'
 import { DEFAULT_REDACTION_RULES, redactMetadata, redactText, type RedactionRule } from './redact'
 
+/** Structural subset of AbortSignal so the engine needs no DOM types. */
+export interface CancelSignal {
+  readonly aborted: boolean
+}
+
 export interface NormalizeLimits {
   /** Maximum source size in bytes (UTF-16 length used as the bound). */
   maxBytes: number
@@ -45,7 +50,7 @@ export interface NormalizeOptions {
   /** Year assumed for year-less syslog timestamps. */
   referenceYear?: number
   /** Checked between records; aborting throws an `AbortError`. */
-  signal?: AbortSignal
+  signal?: CancelSignal
   /** Progress callback in [0, 1]. */
   onProgress?: (fraction: number, stage: string) => void
 }
@@ -94,7 +99,7 @@ export class ImportTooLargeError extends Error {
   readonly code = 'source_too_large'
 }
 
-function abortIfNeeded(signal?: AbortSignal) {
+function abortIfNeeded(signal?: CancelSignal) {
   if (signal?.aborted) {
     const err = new Error('Import cancelled')
     err.name = 'AbortError'

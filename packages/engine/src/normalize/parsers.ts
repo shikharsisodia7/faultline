@@ -255,7 +255,7 @@ export function parseText(input: string): ParseResult {
     const line = i + 1
     if (!text.trim()) continue
     // Stack-trace continuation lines attach to the previous record.
-    if (/^\s+(at |\.\.\.|Caused by:)|^\s{4,}\S/.test(text) && records.length > 0) {
+    if (records.length > 0 && (/^\s+(at |\.\.\.|Caused by:)|^\s{4,}\S/.test(text) || /^(Caused by:|Traceback \(most recent call last\):|[\w$]+(\.[\w$]+)+(Exception|Error)(: |$))/.test(text))) {
       const prev = records[records.length - 1]
       const stack = typeof prev.fields.stack === 'string' ? `${prev.fields.stack}\n` : ''
       prev.fields.stack = `${stack}${text.trim()}`

@@ -78,9 +78,10 @@ const SEVERITY_WORDS: Array<[RegExp, Severity]> = [
 export function normalizeSeverity(value: unknown, scale: 'auto' | 'syslog' | 'otel' = 'auto'): Severity | undefined {
   if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value.trim()))) {
     const n = Number(value)
-    if (scale === 'syslog' || (scale === 'auto' && n <= 7 && n >= 0 && scale !== 'otel')) {
-      if (scale === 'auto' && n === 0) return undefined
-      if (n <= 2) return 'critical'
+    // Auto mode reads 1-7 as syslog levels (0 = emergency is ambiguous with
+    // "unset", so it is left to message inference); OTLP sources pass 'otel'.
+    if (scale === 'syslog' || (scale === 'auto' && n >= 1 && n <= 7)) {
+      if (n <= 2) return 'critical' // 0 emerg, 1 alert, 2 crit
       if (n === 3) return 'error'
       if (n === 4) return 'warn'
       if (n <= 6) return 'info'

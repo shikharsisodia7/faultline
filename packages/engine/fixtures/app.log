@@ -1,0 +1,9 @@
+2026-10-14T17:04:02.000Z [INFO] pricing-svc: Deploy pricing-svc v2.14.0 deployment_id=pricing-svc@v2.14.0
+2026-10-14T17:04:09.900Z [ERROR] pricing-db: connection pool exhausted in_use=14 waiting=40
+2026-10-14 17:04:10.250Z ERROR checkout-svc - call to pricing-svc timed out trace_id=4bf92f35 request_id=req-91
+java.lang.RuntimeException: timeout
+    at com.shop.Checkout.price(Checkout.java:88)
+    at com.shop.Checkout.run(Checkout.java:41)
+10.0.0.7 - - [14/Oct/2026:17:04:11 +0000] "POST /checkout HTTP/1.1" 504 0 "-" "curl/8" 1.502
+Oct 14 17:04:12 ip-10-0-0-9 edge-gateway[811]: upstream checkout-svc returned 5xx
+garbage line that matches nothing
