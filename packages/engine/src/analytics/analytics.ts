@@ -106,3 +106,24 @@ export function reliabilityReport(incidents: readonly IncidentSummary[]): Reliab
     definitions: ANALYTICS_DEFINITIONS,
   }
 }
+
+/** Builds the analytics summary for one incident dataset. */
+export function summarizeIncident(dataset: import('../types').IncidentDataset): IncidentSummary {
+  const errorServices = new Set(dataset.events.filter((e) => e.severity === 'error' || e.severity === 'critical').map((e) => e.service))
+  const firstError = dataset.events.find((e) => e.severity === 'error' || e.severity === 'critical')
+  const alert = dataset.events.find((e) => e.type === 'alert')
+  const recovery = [...dataset.events].reverse().find((e) => e.type === 'recovery')
+  return {
+    id: dataset.meta.id,
+    title: dataset.meta.title,
+    severity: dataset.meta.severity,
+    synthetic: dataset.meta.synthetic,
+    startedAt: dataset.meta.startedAt ?? firstError?.ts ?? null,
+    detectedAt: dataset.meta.detectedAt ?? alert?.ts ?? null,
+    resolvedAt: dataset.meta.resolvedAt ?? recovery?.ts ?? null,
+    category: dataset.meta.category ?? null,
+    services: Array.from(new Set(dataset.events.map((e) => e.service))).sort(),
+    affectedServices: Array.from(errorServices).sort(),
+    failedDependencies: dataset.dependencies.filter((d) => errorServices.has(d.from) && errorServices.has(d.to)).map((d) => `${d.from}->${d.to}`).sort(),
+  }
+}

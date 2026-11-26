@@ -95,3 +95,16 @@ describe('reliability analytics', () => {
     expect(empty.mttrSec.reason).toMatch(/at least 1/)
   })
 })
+
+describe('summarizeIncident', () => {
+  it('derives timestamps, affected services, and failed dependencies', async () => {
+    const { summarizeIncident } = await import('./analytics/analytics')
+    const s = summarizeIncident(dataset)
+    expect(s.synthetic).toBe(true)
+    expect(s.startedAt).not.toBeNull()
+    expect(s.detectedAt! >= s.startedAt!).toBe(true)
+    expect(s.affectedServices).toEqual(expect.arrayContaining(['pricing-db', 'pricing-svc', 'checkout-svc']))
+    expect(s.failedDependencies).toContain('pricing-svc->pricing-db')
+    expect(s.affectedServices).not.toContain('inventory-db')
+  })
+})
