@@ -108,3 +108,52 @@ describe('summarizeIncident', () => {
     expect(s.affectedServices).not.toContain('inventory-db')
   })
 })
+
+
+describe('guided-demo metadata matches what the simulation did', () => {
+  for (const d of DEMO_SCENARIOS) {
+    it(`${d.slug}: story beats line up with the run`, () => {
+      const { run } = generateIncident(d)
+      const onset = run.summary.onsetSec!
+      expect(onset).not.toBeNull()
+      const changeTimes = d.scenario.timeline.map((c) => c.atSec)
+      let last = -1
+      for (const beat of d.plain.story) {
+        expect(beat.atSec).toBeGreaterThanOrEqual(last)
+        last = beat.atSec
+        if (beat.kind === 'change' || beat.kind === 'response') expect(changeTimes, beat.text).toContain(beat.atSec)
+        if (beat.kind === 'impact') expect(beat.atSec, beat.text).toBeGreaterThanOrEqual(onset)
+        if (beat.kind === 'recovery') expect(run.summary.recovered).toBe(true)
+      }
+      for (const id of Object.keys(d.plain.parts)) expect(d.scenario.model.services.map((s) => s.id)).toContain(id)
+    })
+
+    it(`${d.slug}: every choice compiles to valid interventions`, async () => {
+      const { branchScenario } = await import('./simulate/interventions')
+      for (const c of d.choices) expect(() => branchScenario(d.scenario, d.suggested.atSec, c.build(c.amount?.initial ?? 0))).not.toThrow()
+    })
+  }
+})
+
+describe('storefront hero scenario', () => {
+  it('is healthy before the sale, fails during it, and is deterministic', async () => {
+    const { STOREFRONT } = await import('./scenarios/storefront')
+    const { runSimulation } = await import('./simulate/simulator')
+    const r = runSimulation(STOREFRONT)
+    expect(r.samples.filter((s) => s.t < 60).every((s) => s.errorRate === 0)).toBe(true)
+    expect(r.summary.onsetSec!).toBeGreaterThanOrEqual(60)
+    expect(r.summary.peakErrorRate).toBeGreaterThan(0.2)
+    expect(runSimulation(STOREFRONT)).toEqual(r)
+  })
+
+  it('reports each choice from the model, including ones that barely help', async () => {
+    const { STOREFRONT, STOREFRONT_CHOICES } = await import('./scenarios/storefront')
+    const { runSimulation } = await import('./simulate/simulator')
+    const { branchScenario, compareRuns } = await import('./simulate/interventions')
+    const base = runSimulation(STOREFRONT)
+    const cap = STOREFRONT_CHOICES.find((c) => c.id === 'capacity')!
+    const better = runSimulation(branchScenario(STOREFRONT, 70, cap.build(24)).scenario)
+    expect(compareRuns(base, better, 70).overall).toBe('better')
+    expect(better.summary.successRate).toBeGreaterThan(base.summary.successRate + 0.15)
+  })
+})

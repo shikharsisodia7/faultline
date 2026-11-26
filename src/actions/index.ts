@@ -159,7 +159,7 @@ export const actions: Record<string, Handler> = {
       const sources = await queryAll<{ fileKey: string; uploadedBy: string }>(tools, 'sources', { incidentId: inc.recordId })
       let filesDeleted = 0
       for (const s of sources) {
-        if (!s.data.fileKey) continue
+        if (!s.data.fileKey || !isOwnPrivateKey(s.data.fileKey, env.DEEPSPACE_APP_ID, s.data.uploadedBy)) continue
         try {
           const r = await appFiles(env, { scope: 'self', userId: s.data.uploadedBy }).delete(s.data.fileKey)
           if (r.existed) filesDeleted++
@@ -376,7 +376,7 @@ export const actions: Record<string, Handler> = {
       const src = await getRecord<{ incidentId: string; fileKey: string; uploadedBy: string }>(tools, 'sources', str(params.sourceId, 'sourceId'))
       if (!src) throw new DomainError('Source not found.', 'not_found')
       const inc = await loadIncident(tools, src.data.incidentId, userId, 'owner')
-      if (src.data.fileKey) await appFiles(env, { scope: 'self', userId: src.data.uploadedBy }).delete(src.data.fileKey).catch(() => undefined)
+      if (src.data.fileKey && isOwnPrivateKey(src.data.fileKey, env.DEEPSPACE_APP_ID, src.data.uploadedBy)) await appFiles(env, { scope: 'self', userId: src.data.uploadedBy }).delete(src.data.fileKey).catch(() => undefined)
       const removed = await deleteAll(tools, 'events', { incidentId: inc.recordId, sourceId: src.recordId })
       // Correlations may reference the removed evidence: drop derived data and
       // mark the analysis stale until the next import recomputes it.

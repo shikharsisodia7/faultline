@@ -305,6 +305,8 @@
   to { stroke-dashoffset: 16; }
 }
 .fl-flow { animation: fl-flow 0.9s linear infinite; }
+/* Requests flowing caller -> callee (diagram edges are drawn that way). */
+.fl-flow-fwd { animation: fl-flow 1.2s linear infinite reverse; }
 
 /* Faint drafting grid, used behind hero and section art. */
 .fl-grid-bg {
@@ -358,3 +360,4 @@
   to { opacity: 1; transform: none; }
 }
 .fl-rise { animation: fl-rise 600ms var(--ease-out-soft) both; }
+.fl-flow-slow { animation: fl-flow 2.4s linear infinite reverse; }

@@ -27,7 +27,7 @@ export const STOREFRONT: SimScenario = {
     services: [
       service('website', 'edge', { capacity: 400, queueCapacity: 400, serviceTimeMs: 3, timeoutMs: 3500 }),
       service('checkout', 'service', { capacity: 60, queueCapacity: 80, serviceTimeMs: 8, timeoutMs: 800, retry: { maxAttempts: 3, backoffMs: 40, backoffMultiplier: 2, jitter: 0.2 } }),
-      service('database', 'database', { capacity: 8, queueCapacity: 100, serviceTimeMs: 45, contention: 2.5 }),
+      service('database', 'database', { capacity: 6, queueCapacity: 100, serviceTimeMs: 35, contention: 1 }),
     ],
     calls: [
       { from: 'website', to: 'checkout' },

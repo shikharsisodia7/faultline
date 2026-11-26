@@ -1,4 +1,5 @@
 import { service, type ScheduledChange, type SimScenario } from '../simulate/model'
+import type { Choice } from './storefront'
 
 /**
  * Synthetic demo incidents. Each is a simulation scenario; its logs, traces,
@@ -20,6 +21,21 @@ export interface DemoScenario {
   /** Generated SLO alert rule: rolling error rate over `windowSec` above `threshold`. */
   alert: { threshold: number; windowSec: number }
   annotations: Array<{ atSec: number; author: string; body: string; kind: 'note' | 'hypothesis' | 'action' }>
+  /** Everyday framing for the guided demo. */
+  plain: {
+    headline: string
+    /** What each part of the system does, in ordinary words. */
+    parts: Record<string, string>
+    /**
+     * The sequence in ordinary language. `kind` ties a beat to something the
+     * simulation must actually show (tests check this): 'change' and
+     * 'response' beats sit on a scheduled change, 'impact' beats at or after
+     * the failure onset, 'recovery' beats only when the run recovered.
+     */
+    story: Array<{ atSec: number; text: string; kind: 'change' | 'strain' | 'impact' | 'response' | 'recovery' }>
+  }
+  /** Decisions offered in the guided "What if?" step (real interventions). */
+  choices: Choice[]
 }
 
 const retry = (maxAttempts: number, backoffMs: number, jitter = 0.2) => ({ maxAttempts, backoffMs, backoffMultiplier: 2, jitter })
@@ -90,6 +106,24 @@ function checkoutCascade(): DemoScenario {
     baseTime: Date.UTC(2026, 9, 14, 17, 2, 0),
     suggested: { atSec: 200, label: 'Roll back pricing-svc at T+200s' },
     alert: { threshold: 0.05, windowSec: 10 },
+    plain: {
+      headline: 'An online store suddenly stops accepting orders.',
+      parts: { 'edge-gateway': 'The front door every shopper passes through', 'checkout-svc': 'Takes orders', 'pricing-svc': 'Works out prices', 'pricing-db': 'Stores prices and handles a few lookups at a time', 'inventory-svc': 'Checks stock', 'inventory-db': 'Stores stock levels', 'payments-svc': 'Charges cards', 'payments-provider': 'The outside card processor' },
+      story: [
+        { atSec: 120, kind: 'change', text: 'A software update to the pricing service started rolling out.' },
+        { atSec: 150, kind: 'change', text: 'As more servers got the update, the pricing database slowed down: each price lookup took far longer.' },
+        { atSec: 155, kind: 'impact', text: 'Requests piled up faster than the database could answer. Checkout waited, timed out, and tried again.' },
+        { atSec: 170, kind: 'impact', text: 'Checkout stopped working. Customers could no longer place orders.' },
+        { atSec: 430, kind: 'response', text: 'The team undid the update.' },
+        { atSec: 460, kind: 'recovery', text: 'Orders went through again.' },
+      ],
+    },
+    choices: [
+      { id: 'rollback', label: 'Undo the software update', description: 'Put the previous version of the pricing service back.', build: () => [{ kind: 'rollback_deployment', service: 'pricing-svc' }] },
+      { id: 'capacity', label: 'Give the database more capacity', description: 'Let the pricing database work on more lookups at once.', amount: { min: 14, max: 80, step: 2, initial: 40, unit: 'at once', label: 'Database can handle' }, build: (n) => [{ kind: 'db_pool', service: 'pricing-db', capacity: n }] },
+      { id: 'limit', label: 'Temporarily limit incoming traffic', description: 'Let only a set number of shoppers in each second; the rest are asked to try again.', amount: { min: 20, max: 85, step: 5, initial: 50, unit: 'shoppers / s', label: 'Allow' }, build: (rps) => [{ kind: 'rate_limit', rps }] },
+      { id: 'retries', label: 'Stop repeating failed requests', description: 'When a price lookup is slow, give up instead of trying three times.', build: () => [{ kind: 'retry_policy', service: 'pricing-svc', maxAttempts: 1, backoffMs: 0 }] },
+    ],
     annotations: [
       { atSec: 175, author: 'on-call (synthetic)', body: 'Checkout p95 alert firing. Gateway shows elevated 5xx. Looking at checkout-svc first.', kind: 'note' },
       { atSec: 260, author: 'on-call (synthetic)', body: 'checkout-svc is mostly waiting on pricing-svc calls. pricing-db pool looks pinned.', kind: 'hypothesis' },
@@ -147,6 +181,23 @@ function retryStorm(): DemoScenario {
     baseTime: Date.UTC(2026, 10, 3, 9, 41, 0),
     suggested: { atSec: 160, label: 'Isolate ranking-svc from feed-svc at T+160s' },
     alert: { threshold: 0.05, windowSec: 10 },
+    plain: {
+      headline: 'A social app slows down, then stops loading for everyone.',
+      parts: { 'api-gateway': 'The front door for the mobile app', 'feed-svc': 'Builds each person’s feed', 'profile-svc': 'Looks up profiles', 'users-db': 'Stores user accounts and handles a few queries at a time', 'ranking-svc': 'Decides the order of posts', 'ranking-model': 'An outside model that scores posts' },
+      story: [
+        { atSec: 150, kind: 'change', text: 'The ranking model stopped responding quickly.' },
+        { atSec: 155, kind: 'impact', text: 'Feed requests waited, timed out, and were retried, both by the app and by the feed service.' },
+        { atSec: 170, kind: 'impact', text: 'Feeds stopped loading for everyone.' },
+        { atSec: 240, kind: 'change', text: 'The ranking model recovered, but the pile of retries kept the user database overloaded.' },
+        { atSec: 340, kind: 'response', text: 'The team limited incoming traffic so the backlog could drain.' },
+      ],
+    },
+    choices: [
+      { id: 'isolate', label: 'Show feeds without ranking', description: 'Skip the slow ranking step and show posts in a simple order.', build: () => [{ kind: 'isolate_dependency', from: 'feed-svc', to: 'ranking-svc' }] },
+      { id: 'retries', label: 'Stop repeating failed requests', description: 'The feed service and the app stop retrying slow requests.', build: () => [{ kind: 'retry_policy', service: 'feed-svc', maxAttempts: 1, backoffMs: 0 }, { kind: 'retry_policy', service: 'client', maxAttempts: 1, backoffMs: 0 }] },
+      { id: 'limit', label: 'Temporarily limit incoming traffic', description: 'Let only a set number of requests in each second.', amount: { min: 30, max: 95, step: 5, initial: 55, unit: 'requests / s', label: 'Allow' }, build: (rps) => [{ kind: 'rate_limit', rps }] },
+      { id: 'capacity', label: 'Give the user database more capacity', description: 'Let the user database handle more queries at once.', amount: { min: 16, max: 80, step: 4, initial: 40, unit: 'at once', label: 'Database can handle' }, build: (n) => [{ kind: 'db_pool', service: 'users-db', capacity: n }] },
+    ],
     annotations: [
       { atSec: 170, author: 'on-call (synthetic)', body: 'ranking-model latency through the roof. Feed timeouts climbing.', kind: 'note' },
       { atSec: 260, author: 'on-call (synthetic)', body: 'ranking-model recovered but feed is still failing. users-db is at max connections?', kind: 'hypothesis' },
@@ -206,6 +257,21 @@ function silentDeployment(): DemoScenario {
     baseTime: Date.UTC(2026, 10, 19, 22, 15, 0),
     suggested: { atSec: 150, label: 'Roll back recommendations-svc at T+150s' },
     alert: { threshold: 0.02, windowSec: 120 },
+    plain: {
+      headline: 'A search page quietly starts failing for some customers.',
+      parts: { 'web-frontend': 'The website', 'search-svc': 'Runs searches', 'search-index': 'Holds the searchable catalog', 'recommendations-svc': 'Suggests related products', 'feature-store': 'A fast cache of customer data' },
+      story: [
+        { atSec: 90, kind: 'change', text: 'An update to the recommendations service reached a quarter of its servers.' },
+        { atSec: 145, kind: 'impact', text: 'A small share of searches started failing. Not enough to look like an outage.' },
+        { atSec: 240, kind: 'change', text: 'The update reached half of the servers, and more customers saw errors.' },
+        { atSec: 330, kind: 'change', text: 'The update reached every server.' },
+        { atSec: 480, kind: 'response', text: 'The team traced the errors to the update and undid it.' },
+      ],
+    },
+    choices: [
+      { id: 'rollback', label: 'Undo the software update', description: 'Put the previous version of the recommendations service back.', build: () => [{ kind: 'rollback_deployment', service: 'recommendations-svc' }] },
+      { id: 'isolate', label: 'Show search without recommendations', description: 'Skip the failing recommendations step; search results still load.', build: () => [{ kind: 'isolate_dependency', from: 'search-svc', to: 'recommendations-svc' }] },
+    ],
     annotations: [
       { atSec: 330, author: 'on-call (synthetic)', body: 'Slow-burn error budget alert on search. No obvious spike in dashboards.', kind: 'note' },
       { atSec: 420, author: 'on-call (synthetic)', body: 'Errors started right after the recommendations v3.2.0 deploy. Only some requests.', kind: 'hypothesis' },

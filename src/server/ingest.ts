@@ -16,6 +16,7 @@ import type { CanonicalEvent, Dependency, IncidentDataset, ServiceDef, Severity,
 import { analyzeIncident, demoScenario, generateIncident, ImportTooLargeError, mergeEvents, normalizeSource, toJsonl } from '@faultline/engine'
 import type { Env } from '../../worker'
 import { createActionTools } from './action-routes'
+import { isOwnPrivateKey } from './keys'
 import { createRecord, deleteAll, DomainError, getRecord, queryAll, requireRole, updateRecord, type IncidentRow, type Rec } from './domain'
 
 export const MAX_EVENTS_PER_INCIDENT = 5_000
@@ -150,6 +151,9 @@ export async function runIngestion(job: Job, ctx: JobContext, env: Env): Promise
       const source = await getRecord<{ workspaceId: string; incidentId: string; fileKey: string; uploadedBy: string; name: string; sizeBytes: number }>(tools, 'sources', p.sourceId)
       if (!source || source.data.incidentId !== p.incidentId) throw new DomainError('Source not found for this incident.', 'not_found')
       if (source.data.sizeBytes > MAX_SOURCE_BYTES) throw new DomainError('Source exceeds the 10 MiB limit.', 'limit')
+      // Defense in depth: the stored key must still sit in the uploader's own
+      // folder, even though registerSource validated it on the way in.
+      if (!isOwnPrivateKey(source.data.fileKey, env.DEEPSPACE_APP_ID, source.data.uploadedBy)) throw new DomainError('The stored file reference is outside the private upload area of the person who uploaded it.', 'forbidden')
       await updateRecord(tools, 'sources', p.sourceId, { status: 'processing' })
       // Read with the uploader's own private scope: a job can only read files
       // the uploader could read themselves.
