@@ -177,12 +177,14 @@ export const actions: Record<string, Handler> = {
   },
 
   /** Registers an uploaded file (already stored in the caller's private R2 scope). */
-  registerSource: async ({ userId, tools, params }) => {
+  registerSource: async ({ userId, tools, params, env }) => {
     try {
       const inc = await loadIncident(tools, params.incidentId, userId, 'collaborator')
       const fileKey = str(params.fileKey, 'fileKey', 600)
-      // Private uploads live under .../users/<uploader>/...; refuse anything else.
-      if (!fileKey.includes(`/users/${userId}/`)) throw new DomainError('That file is not in your private upload area.', 'forbidden')
+      // Private uploads live under exactly apps/<appId>/users/<uploader>/...
+      // Anchor to that prefix (not a substring) and refuse traversal or odd
+      // separators, so a crafted key can never point into another user's area.
+      if (!isOwnPrivateKey(fileKey, env.DEEPSPACE_APP_ID, userId)) throw new DomainError('That file is not in your private upload area.', 'forbidden')
       const sizeBytes = Number(params.sizeBytes)
       if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) throw new DomainError('sizeBytes is required.', 'invalid')
       if (sizeBytes > MAX_SOURCE_BYTES) throw new DomainError('Sources are limited to 10 MiB.', 'limit')
@@ -401,6 +403,15 @@ export const actions: Record<string, Handler> = {
   importGithubCommits: async (ctx) => importGithubCommits(ctx),
   searchRemediation: async (ctx) => searchRemediation(ctx),
   askInvestigator: async (ctx) => askInvestigator(ctx),
+}
+
+/** True only for a key inside the caller's private folder of this app. */
+export function isOwnPrivateKey(key: string, appId: string, userId: string): boolean {
+  if (!appId || !userId) return false
+  // eslint-disable-next-line no-control-regex -- rejecting control characters is the point
+  if (key.includes('..') || key.includes('//') || key.includes('\\') || /[\u0000-\u001f]/.test(key)) return false
+  const prefix = `apps/${appId}/users/${userId}/`
+  return key.startsWith(prefix) && key.length > prefix.length
 }
 
 function validateInterventions(raw: unknown): Intervention[] {
