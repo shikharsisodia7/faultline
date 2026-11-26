@@ -25,19 +25,20 @@ Faultline borrows principles, not assets: its texture is an original topographic
 
 ## Checklist
 
-- [ ] Light-first design tokens; dark theme kept for engineering mode
-- [ ] Brand: wordmark, symbol, favicon, app icon, social image
-- [ ] Landing page rebuilt around the flight-recorder story
-- [ ] Interactive hero driven by the real simulator
-- [ ] Faultline Timeline (branching) component
-- [ ] Guided demo: What happened / Why / What if / Compare
-- [ ] Guided and Engineering modes sharing state
-- [ ] App navigation: Home, Investigate, Experiment, Reports
-- [ ] Guided import flow
-- [ ] Approachable experiment lab
-- [ ] Copy and terminology pass
-- [ ] Security test expansion and scan review
-- [ ] Vercel deployment verified
-- [ ] DeepSpace deployment verified (blocked on login)
-- [ ] Visual QA at 1920, 1440, 1280, 768, 390
-- [ ] README, INTERVIEW.md, screenshots
+- [x] Light-first design tokens; dark theme kept as an alternative (contrast-checked against WCAG AA)
+- [x] Brand: wordmark, symbol, favicon, app icon, social image (og.png rendered with the site fonts)
+- [x] Landing page rebuilt around the flight-recorder story
+- [x] Interactive hero driven by the real simulator
+- [x] Faultline Timeline (branching) component, keyboard-operable (covered by the usability suite)
+- [x] Guided demo: What happened / Why / What if / Compare
+- [x] Guided and Engineering modes sharing state
+- [x] App navigation: Home, Investigate, Experiment, Reports (DeepSpace pages type-check; unverified live until the DeepSpace deploy)
+- [x] Guided import flow, four steps (code complete; the upload path is unverified until the DeepSpace deploy)
+- [x] Approachable experiment lab (simple mode + Advanced settings; banking template)
+- [x] Copy and terminology pass
+- [x] Security test expansion (`src/server/keys.test.ts`) and scan review (Semgrep, gitleaks)
+- [x] Vercel deployment verified: https://faultline-coral.vercel.app (direct routes, refresh, desktop + phone)
+- [ ] DeepSpace deployment verified (blocked: owner must run `npx deepspace auth login`)
+- [x] Visual QA at 1920, 1440, 1280, 768, 390 (`docs/screenshots/`); axe-core: 0 violations on the six main pages
+- [x] README, INTERVIEW.md, screenshots, demo GIF
+- [ ] Usability testing with real people (not done; automated acceptance tests are not a substitute — see HUMAN-VERIFICATION.md)

@@ -17,6 +17,8 @@ What a person has verified, and what still needs a person. Automated checks (tes
 | gitleaks over full history | No leaks |
 | `npm audit` | 1 low-severity advisory (esbuild, development only) |
 | Live Vercel site in Chrome (agent-driven) | Landing, guided demo, engineering mode and lab worked. No console errors on the pages checked |
+| Usability acceptance suite (`npm run test:usability`, 11 tests) | Passing against the live site, and in CI against each commit's build. Mutation-checked: a wrong expectation fails |
+| axe-core 4.10 (WCAG 2.1 A/AA + best practice) on landing, examples, guided demo, engineering mode, lab, docs | 0 violations after fixes. Automated rules catch only part of WCAG; screen-reader testing has not been done |
 | Containerized Playwright at 1920, 1440, 1280, 768 and 390 px | Screenshots in `docs/screenshots/`. No horizontal overflow at 390 or 768 px on the pages measured |
 
 **Not run:** DeepSpace smoke, API and collaboration suites (`npm test`), which need a DeepSpace sign-in. No Lighthouse or performance benchmark has been run, so none is quoted anywhere.

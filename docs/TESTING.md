@@ -21,6 +21,20 @@ Fixtures live in `packages/engine/fixtures/`.
 
 `src/schemas/faultline-schemas.test.ts` runs the SDK's `lintSchema` on every collection and asserts the access invariants: no client writes to workspace-scoped rows, `'team'` reads for members and admins, no anonymous access, personal lab scenarios.
 
+## Usability acceptance tests (standalone build)
+
+`tests/standalone/usability.spec.ts`, run with `npm run test:usability`. Eleven tests that use the app the way a first-time visitor would, asserting through roles and visible text rather than CSS selectors:
+
+- landing to examples without an account, with the synthetic label visible;
+- the four guided steps, ending in a verdict computed by a real simulation;
+- switching between Guided and Engineering modes;
+- operating the Faultline Timeline with the keyboard alone (End, Home, Shift+Arrow);
+- running an experiment in the lab;
+- the privacy and security pages linked from the footer;
+- no sideways scrolling at 390 px on five pages.
+
+It targets the live site by default (`FAULTLINE_URL` overrides). CI builds the commit, serves it with `vite preview`, and runs the suite against that build. The suite was mutation-checked: changing an expected string makes it fail. It complements, and does not replace, testing with real people.
+
 ## Platform tests (Playwright via `deepspace test run`)
 
 `tests/smoke.spec.ts`, `tests/api.spec.ts`, and `tests/collab.spec.ts` run against the local DeepSpace runtime with real services and the SDK's multi-user fixture. On this project's development machine Playwright runs through a Docker relay (headless Chromium inside a Linux container) because host Chromium crashes the Windows kernel; the `PW_TEST_CONNECT_*` variables route `playwright test` there automatically.

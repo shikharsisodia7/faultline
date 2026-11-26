@@ -51,7 +51,7 @@ the authenticated workspace builds one from DeepSpace records.
 ### Phase 1 — Foundation
 - [x] Scaffold with `create-deepspace@0.44.2`
 - [x] Git repository, public GitHub repo, LF normalization, auto-checkpoint push
-- [x] Branding: logo, favicon, metadata (OG PNG render pending)
+- [x] Branding: logo, favicon, metadata, OG PNG
 - [ ] Starter deployment to DeepSpace (blocked on interactive `deepspace auth login`)
 - [x] Schemas + permissions for all collections (lint + invariant tests pass; platform enforcement verified only after deploy)
 
@@ -81,17 +81,18 @@ the authenticated workspace builds one from DeepSpace records.
 - [x] Postmortem export (Markdown, JSON, print) — verified in the demo
 
 ### Phase 6 — Advanced
-- [x] Chaos lab with templates
+- [x] Experiment lab with templates
 - [ ] AI investigator (code complete, off by default; unverified)
 - [ ] GitHub commit import, Exa remediation search (code complete, off by default; unverified)
 - [x] Reliability analytics
 - [x] OTLP JSON ingestion
 
 ### Phase 7 — Production hardening
-- [ ] Playwright E2E (smoke, api, collab)
-- [ ] Security review
-- [ ] Accessibility + visual QA at 1440 / 1024 / 390
-- [ ] Performance measurement
-- [ ] Documentation set (engine, architecture, data model, testing, tradeoffs, deployment written; README and walkthroughs pending)
+- [ ] Playwright E2E on DeepSpace (smoke, api, collab): blocked on DeepSpace login
+- [x] Playwright usability acceptance suite for the standalone build (11 tests, runs in CI)
+- [x] Security review: automated review findings fixed; Semgrep + gitleaks clean (one scaffold parse error documented)
+- [x] Accessibility + visual QA: axe-core 0 violations on six main pages; screenshots at 1920 / 1440 / 1280 / 768 / 390
+- [ ] Performance measurement: only bundle size measured (entry 742 kB -> 568 kB after code splitting); no Lighthouse or field data collected
+- [x] Documentation set, including README, walkthrough, interview guide, agent contributions and human verification
 - [ ] DeepSpace production deploy + verification
-- [ ] Vercel deploy + verification
+- [x] Vercel deploy + verification (https://faultline-coral.vercel.app)
