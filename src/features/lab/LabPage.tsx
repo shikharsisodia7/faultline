@@ -3,7 +3,7 @@ import { ChaosLab, type LabStore } from './ChaosLab'
 
 export function LabPage({ store }: { store: LabStore }) {
   return (
-    <div className="flex h-dvh min-h-0 flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-background lg:h-dvh lg:min-h-0">
       <SiteHeader compact />
       <div className="flex items-baseline gap-3 border-b border-border px-4 py-2">
         <h1 className="text-[15px] font-semibold text-foreground">Experiment lab</h1>

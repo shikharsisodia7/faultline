@@ -130,8 +130,8 @@ export function ChaosLab({ store }: { store: LabStore }) {
   ]
 
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,560px)_1fr] lg:overflow-hidden">
-      <aside className="min-h-0 border-b border-border lg:overflow-y-auto lg:border-b-0 lg:border-r">
+    <div className="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[minmax(0,560px)_1fr] lg:overflow-hidden">
+      <aside className="border-b border-border lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <span className="text-[14px] font-medium text-foreground">{advanced ? 'Advanced settings' : 'Choose a system'}</span>
           <button type="button" onClick={() => setAdvanced((a) => !a)} aria-pressed={advanced} className="text-[13px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">{advanced ? 'Back to simple view' : 'Advanced settings'}</button>
@@ -254,7 +254,7 @@ export function ChaosLab({ store }: { store: LabStore }) {
         )}
       </aside>
 
-      <section className="min-h-0 lg:overflow-y-auto">
+      <section className="lg:min-h-0 lg:overflow-y-auto">
         <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
           <Button onClick={execute} loading={running} disabled={problems.length > 0}><Play className="size-4" /> Run simulation</Button>
           <Button variant="outline" disabled={!run || pinned.length >= 4} onClick={() => run && setPinned((p) => [...p, { name: `Strategy ${String.fromCharCode(65 + p.length)}`, run, color: PALETTE[p.length % PALETTE.length] }])}>
