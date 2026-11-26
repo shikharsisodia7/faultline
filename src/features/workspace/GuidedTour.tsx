@@ -24,7 +24,7 @@ export function GuidedTour({ steps }: { steps: TourStep[] }) {
   }, [])
   useEffect(() => {
     if (open) steps[i]?.onEnter?.()
-  }, [i, open]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [i, open])  
 
   const dismiss = () => {
     setOpen(false)

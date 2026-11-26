@@ -30,6 +30,10 @@ export interface WorkspaceProps {
   headerLeft?: ReactNode
   headerRight?: ReactNode
   tour?: boolean
+  /** External request to select an event (e.g. a citation clicked elsewhere). */
+  requestedEvent?: { id: string; n: number } | null
+  /** Fill the parent (inside the app layout) instead of the viewport. */
+  embedded?: boolean
 }
 
 type MobilePane = 'graph' | 'timeline' | 'evidence' | 'panels'
@@ -84,12 +88,16 @@ export function Workspace(props: WorkspaceProps) {
     [byId, ctl, mode, adapter],
   )
 
+  useEffect(() => {
+    if (props.requestedEvent) selectEvent(props.requestedEvent.id)
+  }, [props.requestedEvent])  
+
   // Shareable deep link to an event: #event=<id>
   useEffect(() => {
     const m = /event=([\w-]+)/.exec(window.location.hash)
     if (m && byId.has(m[1])) selectEvent(m[1])
     // run once per dataset
-  }, [dataset.meta.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dataset.meta.id])  
   useEffect(() => {
     if (selectedEventId) history.replaceState(null, '', `#event=${selectedEventId}`)
   }, [selectedEventId])
@@ -182,7 +190,7 @@ export function Workspace(props: WorkspaceProps) {
   const inspector = <InspectorPanel analysis={analysis} event={selectedEvent} adapter={adapter} state={ctl.state} onSelectEvent={selectEvent} onSelectService={(id) => setSelectedService(id)} />
 
   return (
-    <div className="flex h-dvh min-h-0 flex-col bg-background">
+    <div className={cn('flex min-h-0 flex-col bg-background', props.embedded ? 'h-full' : 'h-dvh')}>
       <header className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-1.5">
         {props.headerLeft}
         <div className="flex min-w-0 items-center gap-2">

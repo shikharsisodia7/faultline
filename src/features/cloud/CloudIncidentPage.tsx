@@ -14,6 +14,7 @@ export function CloudIncidentPage({ incidentId }: { incidentId: string }) {
   const data = useCloudIncident(incidentId)
   const [tools, setTools] = useState(false)
   const [confirm, setConfirm] = useState(false)
+  const [requested, setRequested] = useState<{ id: string; n: number } | null>(null)
   const navigate = useNavigate()
   const { success, error } = useToast()
 
@@ -62,6 +63,8 @@ export function CloudIncidentPage({ incidentId }: { incidentId: string }) {
         modelAssumptions={sim?.assumptions}
         suggestedBranchSec={sim?.suggestedAt}
         suggestedInterventions={sim?.suggested}
+        requestedEvent={requested}
+        embedded
         headerLeft={
           <Link to="/incidents" className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Back to incidents">
             <ArrowLeft className="size-4" /><LogoMark className="size-4" title="" />
@@ -75,13 +78,13 @@ export function CloudIncidentPage({ incidentId }: { incidentId: string }) {
           </>
         }
       />
-      {tools ? <IncidentTools data={data} onClose={() => setTools(false)} onSelectEvent={(id) => { setTools(false); window.location.hash = `event=${id}`; window.location.reload() }} /> : null}
+      {tools ? <IncidentTools data={data} onClose={() => setTools(false)} onSelectEvent={(id) => { setTools(false); setRequested({ id, n: Date.now() }) }} /> : null}
       <ConfirmModal
         open={confirm}
         onClose={() => setConfirm(false)}
         title={`Delete "${data.incident!.data.title}"?`}
         description="Permanently deletes the incident, all of its events, correlations, notes, simulations, postmortems, and the raw uploaded files. Collaborators lose access immediately. This cannot be undone."
-        confirmLabel="Delete incident"
+        confirmText="Delete incident"
         variant="destructive"
         onConfirm={async () => {
           setConfirm(false)

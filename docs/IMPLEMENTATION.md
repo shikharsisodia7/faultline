@@ -51,47 +51,47 @@ the authenticated workspace builds one from DeepSpace records.
 ### Phase 1 — Foundation
 - [x] Scaffold with `create-deepspace@0.44.2`
 - [x] Git repository, public GitHub repo, LF normalization, auto-checkpoint push
-- [ ] Branding: logo, favicon, OG image, metadata
+- [x] Branding: logo, favicon, metadata (OG PNG render pending)
 - [ ] Starter deployment to DeepSpace (blocked on interactive `deepspace auth login`)
-- [ ] Schemas + permissions for all collections
+- [x] Schemas + permissions for all collections (lint + invariant tests pass; platform enforcement verified only after deploy)
 
 ### Phase 2 — Engineering core
-- [ ] Event normalization engine + fixtures + tests
-- [ ] Dependency graph
-- [ ] Correlation engine + hypotheses + tests
-- [ ] Replay engine + tests
-- [ ] Synthetic incident generation
+- [x] Event normalization engine + fixtures + tests
+- [x] Dependency graph
+- [x] Correlation engine + hypotheses + tests
+- [x] Replay engine + tests
+- [x] Synthetic incident generation
 
 ### Phase 3 — Investigation interface
-- [ ] Public demo directory and command center
-- [ ] Timeline with swimlanes, scrubber, playback
-- [ ] Service topology (zoom/pan, propagation, blast radius)
-- [ ] Event inspector (evidence, causes, confidence, explanations)
-- [ ] Search and filters
+- [x] Public demo directory and command center
+- [x] Timeline with swimlanes, scrubber, playback
+- [x] Service topology (zoom/pan, propagation, blast radius)
+- [x] Event inspector (evidence, causes, confidence, explanations)
+- [x] Search and filters
 
 ### Phase 4 — Signature feature
-- [ ] Discrete-event simulator + tests
-- [ ] Counterfactual branching + interventions
-- [ ] Comparison visualization
+- [x] Discrete-event simulator + tests
+- [x] Counterfactual branching + interventions
+- [x] Comparison visualization
 
 ### Phase 5 — Full-stack features
-- [ ] File upload to R2 + ingestion job
-- [ ] Persistent incidents, workspace isolation
-- [ ] Collaborative annotations, hypotheses review, bookmarks, presence
-- [ ] Postmortem export (Markdown, JSON, print)
+- [ ] File upload to R2 + ingestion job (code complete, type-checks; unverified until DeepSpace login)
+- [ ] Persistent incidents, workspace isolation (code complete; unverified)
+- [ ] Collaborative annotations, hypotheses review, bookmarks, presence (code complete; unverified)
+- [x] Postmortem export (Markdown, JSON, print) — verified in the demo
 
 ### Phase 6 — Advanced
-- [ ] Chaos lab with templates
-- [ ] AI investigator (evidence-grounded, optional)
-- [ ] GitHub deployment-event import, Exa remediation search
-- [ ] Reliability analytics
-- [ ] OTLP JSON ingestion
+- [x] Chaos lab with templates
+- [ ] AI investigator (code complete, off by default; unverified)
+- [ ] GitHub commit import, Exa remediation search (code complete, off by default; unverified)
+- [x] Reliability analytics
+- [x] OTLP JSON ingestion
 
 ### Phase 7 — Production hardening
 - [ ] Playwright E2E (smoke, api, collab)
 - [ ] Security review
 - [ ] Accessibility + visual QA at 1440 / 1024 / 390
 - [ ] Performance measurement
-- [ ] Documentation set
+- [ ] Documentation set (engine, architecture, data model, testing, tradeoffs, deployment written; README and walkthroughs pending)
 - [ ] DeepSpace production deploy + verification
 - [ ] Vercel deploy + verification

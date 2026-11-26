@@ -28,7 +28,9 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "test:engine": "vitest run --root packages/engine",
-    "typecheck:engine": "tsc -p packages/engine/tsconfig.json"
+    "typecheck:engine": "tsc -p packages/engine/tsconfig.json",
+    "build:vercel": "vite build --config vite.vercel.config.ts",
+    "dev:standalone": "vite --config vite.vercel.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "~1.6.0",

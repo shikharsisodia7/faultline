@@ -108,7 +108,7 @@ function SourcesTab({ data, canEdit, isOwner }: { data: CloudIncident; canEdit: 
         onClose={() => setConfirmDelete(null)}
         title={`Delete source "${confirmDelete?.name}"?`}
         description="This permanently deletes the uploaded file and every event that came from it. Correlations are recomputed on the next import. This cannot be undone."
-        confirmLabel="Delete source"
+        confirmText="Delete source"
         variant="destructive"
         onConfirm={async () => {
           const id = confirmDelete!.id
