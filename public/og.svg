@@ -1,18 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#0b0c0e"/>
-  <g stroke="#1a1d22" stroke-width="1">
-    <path d="M0 105h1200M0 210h1200M0 315h1200M0 420h1200M0 525h1200"/>
-    <path d="M150 0v630M300 0v630M450 0v630M600 0v630M750 0v630M900 0v630M1050 0v630"/>
+  <rect width="1200" height="630" fill="#f5f3ef"/>
+  <g stroke="#1f1d1a" stroke-opacity=".05">
+    <path d="M0 90h1200M0 180h1200M0 270h1200M0 360h1200M0 450h1200M0 540h1200"/>
+    <path d="M100 0v630M200 0v630M300 0v630M400 0v630M500 0v630M600 0v630M700 0v630M800 0v630M900 0v630M1000 0v630M1100 0v630"/>
   </g>
-  <path d="M0 360h210l26-30 22 58 24-120 30 150 22-90 18 32h208" fill="none" stroke="#e7e9ec" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M640 410h40l18-24 22 70 26-118 24 96 20-40 18 16h392" fill="none" stroke="#e7e9ec" stroke-width="3" stroke-linejoin="round" opacity=".6"/>
-  <path d="M700 40 540 600" stroke="#ff5a4e" stroke-width="5" stroke-linecap="round"/>
-  <path d="M760 410h390" stroke="#6cc4ee" stroke-width="3" stroke-dasharray="10 8" opacity=".9"/>
-  <g font-family="Geist, 'Segoe UI', sans-serif" fill="#e7e9ec">
-    <text x="80" y="150" font-size="76" font-weight="600" letter-spacing="-2">Faultline</text>
-    <text x="80" y="210" font-size="30" fill="#8b929c">Every failure has a timeline.</text>
+  <path d="M80 430H560" stroke="#1f1d1a" stroke-width="6" stroke-linecap="round"/>
+  <path d="M560 430l34-64 40 132 30-98 24 30h400" fill="none" stroke="#c4452b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M560 430c80 0 104 96 196 96h330" fill="none" stroke="#36598a" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 0"/>
+  <circle cx="560" cy="430" r="16" fill="#1f1d1a" stroke="#f5f3ef" stroke-width="6"/>
+  <g font-family="Geist, 'Segoe UI', Helvetica, Arial, sans-serif" fill="#1f1d1a">
+    <text x="80" y="118" font-family="'Geist Mono', Consolas, monospace" font-size="20" letter-spacing="4" fill="#6b665d">THE FLIGHT RECORDER FOR SOFTWARE</text>
+    <text x="78" y="210" font-size="72" font-weight="500" letter-spacing="-2.5">Understand what broke.</text>
+    <text x="78" y="290" font-size="38" fill="#6b665d" letter-spacing="-1">Replay the past. Explore a different outcome.</text>
   </g>
-  <g font-family="'Geist Mono', Consolas, monospace" font-size="20" fill="#5c636d">
-    <text x="80" y="560">replay · correlate · branch · simulate</text>
+  <g font-family="'Geist Mono', Consolas, monospace" font-size="18" fill="#6b665d">
+    <text x="900" y="400">what happened</text>
+    <text x="900" y="560" fill="#36598a">what could have</text>
   </g>
 </svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Faultline">
+  <rect width="512" height="512" rx="112" fill="#1f1d1a"/>
+  <path d="M72 256H182" stroke="#f5f3ef" stroke-width="34" stroke-linecap="round"/>
+  <path d="M182 256l38-74 45 150 35-112 26 35h114" fill="none" stroke="#e0664a" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M182 256c67 0 90 120 166 120h92" fill="none" stroke="#8fb0d9" stroke-width="34" stroke-linecap="round"/>
+  <circle cx="182" cy="256" r="40" fill="#f5f3ef" stroke="#1f1d1a" stroke-width="20"/>
+</svg>

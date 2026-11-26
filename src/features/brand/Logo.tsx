@@ -1,12 +1,17 @@
 import { cn } from '@/lib/utils'
 
-/** The Faultline mark: a seismograph trace displaced across a fault. */
+/**
+ * The Faultline symbol: a timeline that forks at a decision point. One path
+ * continues as a seismic spike (what happened); the other bends away calmly
+ * (what could have happened).
+ */
 export function LogoMark({ className, title = 'Faultline' }: { className?: string; title?: string }) {
   return (
-    <svg viewBox="0 0 32 32" fill="none" className={cn('size-6', className)} role="img" aria-label={title}>
-      <path d="M2 14.5h4.5l1.6-4.2 2.2 8.6 1.7-5.4 1.4 1h1.6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M18.4 18.5h1.4l1.5-3 1.9 6 1.5-3.6 1.1.6H30" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" opacity=".72" />
-      <path d="M19.6 3.5 12.4 28.5" stroke="var(--color-fault)" strokeWidth="2.2" strokeLinecap="round" />
+    <svg viewBox="0 0 32 32" fill="none" className={cn('size-6', className)} role={title ? 'img' : undefined} aria-label={title || undefined} aria-hidden={title ? undefined : true}>
+      <path d="M2.5 16H11" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M11 16l2.4-4.6 2.8 9.4 2.2-7 1.6 2.2H29.5" stroke="var(--color-fault)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 16c4.2 0 5.6 7.5 10.4 7.5h8.1" stroke="var(--color-sim)" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="11" cy="16" r="2.6" fill="currentColor" stroke="var(--color-background)" strokeWidth="1.4" />
     </svg>
   )
 }
@@ -14,8 +19,8 @@ export function LogoMark({ className, title = 'Faultline' }: { className?: strin
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2 text-foreground', className)}>
-      <LogoMark className="size-5" title="" />
-      <span className="text-[15px] font-semibold tracking-[-0.01em]">Faultline</span>
+      <LogoMark className="size-[22px]" title="" />
+      <span className="text-[16px] font-medium tracking-[-0.02em]">Faultline</span>
     </span>
   )
 }
