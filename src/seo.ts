@@ -6,9 +6,9 @@
 declare const __DEEPSPACE_SITE_ORIGIN__: string | undefined
 
 export const seo = {
-  title: 'Faultline | Incident replay and counterfactual simulation',
+  title: 'Faultline: the flight recorder for software',
   description:
-    'Reconstruct an incident from logs and traces, replay it, see ranked and explained root-cause hypotheses, and simulate how a different intervention could have changed the outcome.',
+    'Faultline is a flight recorder for software: replay a failure from its logs and explore what could have happened differently. Try the demo without an account.',
   origin: typeof __DEEPSPACE_SITE_ORIGIN__ === 'string' ? __DEEPSPACE_SITE_ORIGIN__ : 'http://localhost',
   ogImage: '/og.png',
   noindex: false,

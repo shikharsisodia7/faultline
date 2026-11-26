@@ -13,6 +13,21 @@ describe('isOwnPrivateKey', () => {
     expect(isOwnPrivateKey(own('report 2026 (1).csv'), APP, ME)).toBe(true)
   })
 
+  it('accepts the exact key shape the live platform returns (observed 2026-11-26)', () => {
+    // From a real `scope=self` upload to faultline.app.space: the platform
+    // prefixes keys with the app *id* (not its name) and the user's opaque id.
+    // The user id below has the observed shape but is not a real account's.
+    const appId = 'app_01M8D1XKCZTT0XPX2XRMPPZR22'
+    const userId = 'qWeRtYuIoPaSdFgHjKlZxCvBnM123456'
+    const stored = `apps/${appId}/users/${userId}/audit/key-format-probe.log`
+    expect(isOwnPrivateKey(stored, appId, userId)).toBe(true)
+    // The same file addressed through the app name, or with the id's case
+    // changed, is not what the platform issues and must not be accepted.
+    expect(isOwnPrivateKey(`apps/faultline/users/${userId}/audit/key-format-probe.log`, appId, userId)).toBe(false)
+    expect(isOwnPrivateKey(stored.replace(appId, appId.toLowerCase()), appId, userId)).toBe(false)
+    expect(isOwnPrivateKey(stored.replace(userId, userId.toUpperCase()), appId, userId)).toBe(false)
+  })
+
   it('cross-user: rejects another user’s folder, including nested prefix injection', () => {
     expect(isOwnPrivateKey(`apps/${APP}/users/${OTHER}/x.jsonl`, APP, ME)).toBe(false)
     expect(isOwnPrivateKey(`apps/${APP}/users/${OTHER}/users/${ME}/x.jsonl`, APP, ME)).toBe(false)

@@ -209,6 +209,14 @@ describe('counterfactual branches', () => {
     expect(runSimulation(b).samples.filter((x) => x.t > 33).every((x) => x.errorRate > 0.9)).toBe(true)
   })
 
+  it('a timeout branch is reproducible: same scenario and decision give identical runs', () => {
+    const build = () => branchScenario(slow, 30, [{ kind: 'set_timeout', service: 'api', timeoutMs: 900 }]).scenario
+    const a = runSimulation(build())
+    const b = runSimulation(build())
+    expect(b.summary).toEqual(a.summary)
+    expect(b.samples).toEqual(a.samples)
+  })
+
   it('rejects timeouts outside the supported range', () => {
     expect(() => branchScenario(slow, 30, [{ kind: 'set_timeout', service: 'api', timeoutMs: 0 }])).toThrow(RangeError)
     expect(() => branchScenario(slow, 30, [{ kind: 'set_timeout', service: 'ghost', timeoutMs: 100 }])).toThrow(/Unknown service/)
