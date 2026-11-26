@@ -1,4 +1,5 @@
 import { cloneModel, type ScheduledChange, type ServiceModel, type SimModel, type SimScenario } from './model'
+import { assignAllowed, CALL_PATCH_KEYS, SERVICE_PATCH_KEYS } from '../util/safe'
 import type { RunResult, RunSummary } from './simulator'
 
 export type Intervention =
@@ -33,10 +34,10 @@ export function modelAt(scenario: SimScenario, atSec: number, inclusive = false)
     const ch = c.change
     if (ch.kind === 'set_service') {
       const s = model.services.find((x) => x.id === ch.service)
-      if (s) Object.assign(s, JSON.parse(JSON.stringify(ch.patch)))
+      if (s) assignAllowed(s, ch.patch, SERVICE_PATCH_KEYS)
     } else if (ch.kind === 'set_call') {
       const e = model.calls.find((x) => x.from === ch.from && x.to === ch.to)
-      if (e) Object.assign(e, ch.patch)
+      if (e) assignAllowed(e, ch.patch, CALL_PATCH_KEYS)
     } else if (ch.kind === 'set_rate_limit') model.rateLimitRps = ch.rps
     else if (ch.kind === 'set_client_retry') model.clientRetry = { ...ch.retry }
   }

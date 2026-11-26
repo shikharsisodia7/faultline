@@ -16,7 +16,7 @@ export function IncidentTools({ data, onClose, onSelectEvent }: { data: CloudInc
   return (
     <div role="dialog" aria-label="Evidence and tools" className="fixed inset-y-0 right-0 z-50 flex w-[min(520px,100vw)] flex-col border-l border-border bg-background shadow-2xl">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <h2 className="text-[14px] font-semibold">Evidence & tools</h2>
+        <h2 className="text-[14px] font-semibold">Evidence and tools</h2>
         <span className="font-mono text-[11px] text-muted-foreground">role: {data.role ?? 'none'}</span>
         <button type="button" aria-label="Close" onClick={onClose} className="ml-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="size-4" /></button>
       </div>

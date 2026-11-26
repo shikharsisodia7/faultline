@@ -1,6 +1,7 @@
 import { cyrb53 } from '../util/hash'
 import { Rng } from '../util/rng'
 import { EventHeap, type Scheduled } from './heap'
+import { assignAllowed, CALL_PATCH_KEYS, SERVICE_PATCH_KEYS } from '../util/safe'
 import {
   cloneModel,
   validateModel,
@@ -559,7 +560,7 @@ export function runSimulation(scenario: SimScenario, options: RunOptions = {}): 
       case 'set_service': {
         const rt = services.get(ch.service)
         if (!rt) break
-        Object.assign(rt.m, JSON.parse(JSON.stringify(ch.patch)))
+        assignAllowed(rt.m, ch.patch, SERVICE_PATCH_KEYS)
         // Added capacity admits queued calls immediately.
         while (rt.queueHead < rt.queue.length && rt.busy < rt.m.capacity) {
           const next = calls.get(rt.queue[rt.queueHead++])
@@ -569,7 +570,7 @@ export function runSimulation(scenario: SimScenario, options: RunOptions = {}): 
       }
       case 'set_call': {
         const edge = model.calls.find((c) => c.from === ch.from && c.to === ch.to)
-        if (edge) Object.assign(edge, ch.patch)
+        if (edge) assignAllowed(edge, ch.patch, CALL_PATCH_KEYS)
         rebuildDeps()
         break
       }

@@ -234,14 +234,18 @@ const TEXT_RULES: Array<{ name: string; re: RegExp; map: (m: RegExpExecArray) =>
 const KV_RE = /(\w[\w.-]*)=("(?:[^"\\]|\\.)*"|\S+)/g
 
 function extractKeyValues(message: string): { message: string; kv: Record<string, string> } {
-  const kv: Record<string, string> = {}
+  // Null-prototype map: keys come from log content and may be `__proto__`.
+  const kv: Record<string, string> = Object.create(null)
   // Only treat a trailing run of key=value tokens as structured fields.
   const match = /((?:\s+\w[\w.-]*=(?:"(?:[^"\\]|\\.)*"|\S+))+)\s*$/.exec(` ${message}`)
   if (!match) return { message, kv }
   const tail = match[1]
   let m: RegExpExecArray | null
   KV_RE.lastIndex = 0
-  while ((m = KV_RE.exec(tail))) kv[m[1]] = m[2].startsWith('"') ? m[2].slice(1, -1).replace(/\\"/g, '"') : m[2]
+  while ((m = KV_RE.exec(tail))) {
+    if (m[1] === '__proto__' || m[1] === 'constructor' || m[1] === 'prototype') continue
+    kv[m[1]] = m[2].startsWith('"') ? m[2].slice(1, -1).replace(/\\"/g, '"') : m[2]
+  }
   const stripped = ` ${message}`.slice(0, match.index).trim()
   return { message: stripped || message, kv }
 }

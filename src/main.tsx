@@ -36,9 +36,12 @@ async function main() {
       // still works — but the visitor saw a flicker and the cause is invisible
       // in `deepspace dev`, which never prerenders. Name it.
       onRecoverableError(error) {
+        // The path is passed as an argument, never inside the format string,
+        // so a URL containing "%s" or "%o" cannot act as a format directive.
         console.error(
-          `[prerender] The static HTML for ${window.location.pathname} did not match what React rendered, so React repainted it. ` +
+          '[prerender] The static HTML for %s did not match what React rendered, so React repainted it. ' +
             'Public pages must render the same markup without a browser: no Date.now(), Math.random(), window, or matchMedia during render.',
+          window.location.pathname,
           error,
         )
       },

@@ -13,3 +13,10 @@ packages:
 allowBuilds:
   esbuild: true
   workerd: true
+
+# Supply-chain hardening (Semgrep p/default): wait seven days before installing
+# freshly published versions, refuse exotic (git/tarball) transitive sources,
+# and never accept a package whose provenance trust level has dropped.
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
+trustPolicy: no-downgrade

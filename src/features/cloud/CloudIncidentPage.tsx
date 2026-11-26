@@ -73,7 +73,7 @@ export function CloudIncidentPage({ incidentId }: { incidentId: string }) {
         headerRight={
           <>
             {data.incident?.data.analysis?.stale ? <span className="font-mono text-[11px] text-[var(--color-degraded)]">analysis stale</span> : null}
-            <button type="button" onClick={() => setTools(true)} className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border px-2 text-[12px] text-muted-foreground hover:text-foreground"><Wrench className="size-3.5" /> Evidence & tools</button>
+            <button type="button" onClick={() => setTools(true)} className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border px-2 text-[12px] text-muted-foreground hover:text-foreground"><Wrench className="size-3.5" /> Evidence and tools</button>
             {data.role === 'owner' ? <button type="button" aria-label="Delete incident" onClick={() => setConfirm(true)} className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:text-[var(--color-fault)]"><Trash2 className="size-3.5" /></button> : null}
           </>
         }
