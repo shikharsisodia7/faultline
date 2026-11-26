@@ -55,7 +55,7 @@ export function SystemDiagram({ parts, calls, status, highlight, highlightLabel 
 
   return (
     <div className={cn('w-full overflow-x-auto', className)}>
-      <svg viewBox={`-4 -4 ${W + 8} ${H + 8}`} className="mx-auto block h-auto w-full" style={{ maxWidth: W + 8, minWidth: Math.min(W, 520) }} role="img" aria-label={parts.map((p) => `${p.name}: ${STATUS[status[p.id] ?? 'ok'].word}`).join('. ')}>
+      <svg viewBox={`-4 -4 ${W + 8} ${H + 8}`} className="mx-auto block h-auto w-full" style={{ maxWidth: (W + 8) * 1.25, minWidth: Math.min(W, 520) }} role="img" aria-label={parts.map((p) => `${p.name}: ${STATUS[status[p.id] ?? 'ok'].word}`).join('. ')}>
         {calls.map((c) => {
           if (!layout.has(c.from) || !layout.has(c.to)) return null
           const a = pos(c.from)

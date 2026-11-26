@@ -8,6 +8,7 @@ import { duration, ms, num, pct } from '@/lib/format'
 import { runScenario } from '../engine/client'
 import { KindTag, SectionLabel } from '../shell/atoms'
 import { SeriesChart, type Series } from '../simulate/SeriesChart'
+import { LAB_EVENTS, LAB_GUIDES, eventChanges } from './catalog'
 
 export interface SavedLabScenario {
   id: string
@@ -59,6 +60,8 @@ function NumCell({ value, onChange, min = 0, max = 100000, step = 1, label }: { 
   )
 }
 
+export { useLocalLabStore } from './useLocalLabStore'
+
 export function ChaosLab({ store }: { store: LabStore }) {
   const [templateSlug, setTemplateSlug] = useState(LAB_TEMPLATES[0].slug)
   const [scenario, setScenario] = useState<SimScenario>(() => LAB_TEMPLATES[0].build())
@@ -72,6 +75,7 @@ export function ChaosLab({ store }: { store: LabStore }) {
   const [newSvc, setNewSvc] = useState({ id: '', kind: 'service' as ServiceModel['kind'] })
   const [link, setLink] = useState({ from: '', to: '' })
   const [saving, setSaving] = useState(false)
+  const [advanced, setAdvanced] = useState(false)
   const { success, error: toastError } = useToast()
 
   const problems = useMemo(() => validateModel(scenario.model, scenario.durationSec), [scenario])
@@ -128,6 +132,12 @@ export function ChaosLab({ store }: { store: LabStore }) {
   return (
     <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,560px)_1fr] lg:overflow-hidden">
       <aside className="min-h-0 border-b border-border lg:overflow-y-auto lg:border-b-0 lg:border-r">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <span className="text-[14px] font-medium text-foreground">{advanced ? 'Advanced settings' : 'Choose a system'}</span>
+          <button type="button" onClick={() => setAdvanced((a) => !a)} aria-pressed={advanced} className="text-[13px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">{advanced ? 'Back to simple view' : 'Advanced settings'}</button>
+        </div>
+        {advanced ? (
+          <>
         <div className="space-y-3 border-b border-border p-3">
           <div className="flex flex-wrap items-end gap-2">
             <label className="flex min-w-[200px] flex-1 flex-col gap-1">
@@ -232,6 +242,16 @@ export function ChaosLab({ store }: { store: LabStore }) {
             </button>
           ))}
         </div>
+          </>
+        ) : (
+          <SimpleLab
+            templateSlug={templateSlug}
+            onTemplate={loadTemplate}
+            scenario={scenario}
+            onEvent={(changes) => update((sc) => ({ ...sc, timeline: [...sc.timeline, ...changes] }))}
+            onClearEvents={() => update((sc) => ({ ...sc, timeline: [] }))}
+          />
+        )}
       </aside>
 
       <section className="min-h-0 lg:overflow-y-auto">
@@ -351,34 +371,51 @@ export function ChaosLab({ store }: { store: LabStore }) {
   )
 }
 
-/** Browser-local scenario store (standalone build, signed-out visitors). */
-export function useLocalLabStore(notice: string): LabStore {
-  const key = 'faultline:lab-scenarios'
-  const read = (): SavedLabScenario[] => {
-    try {
-      return JSON.parse(localStorage.getItem(key) ?? '[]') as SavedLabScenario[]
-    } catch {
-      return []
-    }
-  }
-  const [scenarios, setScenarios] = useState<SavedLabScenario[]>(read)
-  const persist = (next: SavedLabScenario[]) => {
-    setScenarios(next)
-    try {
-      localStorage.setItem(key, JSON.stringify(next))
-    } catch {
-      /* storage blocked */
-    }
-  }
-  return {
-    notice,
-    canSave: true,
-    scenarios,
-    save: async (name, scenario, id) => {
-      const sid = id ?? `lab_${Date.now().toString(36)}`
-      persist([{ id: sid, name, scenario, updatedAt: Date.now() }, ...scenarios.filter((s) => s.id !== sid)].slice(0, 30))
-      return sid
-    },
-    remove: async (id) => persist(scenarios.filter((s) => s.id !== id)),
-  }
+
+function SimpleLab({ templateSlug, onTemplate, scenario, onEvent, onClearEvents }: { templateSlug: string; onTemplate: (slug: string) => void; scenario: SimScenario; onEvent: (c: ScheduledChange[]) => void; onClearEvents: () => void }) {
+  const guide = LAB_GUIDES.find((g) => g.slug === templateSlug)
+  return (
+    <div className="space-y-6 p-4">
+      {(['system', 'drill'] as const).map((group) => (
+        <div key={group}>
+          <h3 className="text-[12.5px] text-muted-foreground">{group === 'system' ? 'Systems you know' : 'Failure drills'}</h3>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {LAB_GUIDES.filter((g) => g.group === group).map((g) => (
+              <button key={g.slug} type="button" aria-pressed={g.slug === templateSlug} onClick={() => onTemplate(g.slug)} className={cn('rounded-xl border px-3 py-2.5 text-left text-[14px] transition-colors', g.slug === templateSlug ? 'border-foreground/60 bg-white text-foreground' : 'border-border text-foreground/80 hover:border-foreground/30')}>
+                {g.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+      {guide ? (
+        <dl className="space-y-3 rounded-2xl border border-border bg-white p-4 text-[14px] leading-relaxed">
+          <div><dt className="text-[12.5px] text-muted-foreground">What it does</dt><dd className="text-foreground">{guide.what}</dd></div>
+          <div><dt className="text-[12.5px] text-muted-foreground">How its parts work together</dt><dd className="text-foreground">{guide.parts}</dd></div>
+          <div><dt className="text-[12.5px] text-muted-foreground">What might make it fail</dt><dd className="text-foreground">{guide.risks}</dd></div>
+          <div><dt className="text-[12.5px] text-muted-foreground">Decisions worth trying</dt><dd className="text-foreground">{guide.decisions}</dd></div>
+        </dl>
+      ) : null}
+      <div>
+        <h3 className="text-[12.5px] text-muted-foreground">Make something happen</h3>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {LAB_EVENTS.map((e) => {
+            const changes = eventChanges(e.id, scenario)
+            return (
+              <button key={e.id} type="button" disabled={!changes} title={changes ? undefined : 'This system has no part this applies to'} onClick={() => changes && onEvent(changes)} className="rounded-full border border-dashed border-border px-3 py-1.5 text-[13px] text-foreground hover:border-[var(--color-fault)] hover:text-[var(--color-fault)] disabled:opacity-40">
+                {e.label}
+              </button>
+            )
+          })}
+        </div>
+        {scenario.timeline.length ? (
+          <ul className="mt-3 space-y-1 text-[13.5px] text-foreground">
+            {scenario.timeline.map((c, i) => <li key={i}><span className="font-mono text-[12px] text-muted-foreground">{Math.floor(c.atSec / 60)}:{String(c.atSec % 60).padStart(2, '0')}</span> {c.label}</li>)}
+            <li><button type="button" onClick={onClearEvents} className="text-[12.5px] text-muted-foreground underline">Clear events</button></li>
+          </ul>
+        ) : <p className="mt-2 text-[13px] text-muted-foreground">Nothing scheduled: running now shows a normal day.</p>}
+      </div>
+      <p className="text-[12.5px] text-muted-foreground">Everything here happens inside a simulation. Nothing touches real systems. Fine-tune capacities, timeouts, and retries under Advanced settings.</p>
+    </div>
+  )
 }

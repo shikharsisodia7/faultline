@@ -1,6 +1,6 @@
-/** Legacy scaffold route: the app's home is the incident list. */
-import { Navigate } from 'react-router-dom'
+/** App home: continue, import, examples, experiment. Public; richer when signed in. */
+import { AppHome } from '../../features/cloud/AppHome'
 
 export default function Home() {
-  return <Navigate to="/incidents" replace />
+  return <AppHome />
 }

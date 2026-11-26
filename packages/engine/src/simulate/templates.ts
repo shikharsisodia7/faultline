@@ -130,6 +130,30 @@ export const LAB_TEMPLATES: LabTemplate[] = [
     }),
   },
   {
+    slug: 'banking',
+    name: 'Banking application',
+    description: 'A mobile banking API that signs people in, checks transfers for fraud with an outside service, and writes to a ledger database.',
+    build: () => scenario('lab-banking', 'Banking application', {
+      durationSec: 300,
+      timeline: [],
+      model: {
+        entry: 'mobile-api', networkMs: 1, clientTimeoutMs: 6000, clientRetry: retry(2, 300), rateLimitRps: null,
+        traffic: [{ atSec: 0, rps: 45 }],
+        services: [
+          service('mobile-api', 'edge', { capacity: 200, serviceTimeMs: 3, timeoutMs: 5000 }),
+          service('auth', 'service', { capacity: 60, serviceTimeMs: 6, timeoutMs: 800 }),
+          service('transfers', 'service', { capacity: 50, serviceTimeMs: 10, timeoutMs: 2500, retry: retry(2, 100) }),
+          service('fraud-check', 'external', { capacity: 40, serviceTimeMs: 60, serviceTimeCv: 0.6 }),
+          service('ledger-db', 'database', { capacity: 16, serviceTimeMs: 9 }),
+        ],
+        calls: [
+          { from: 'mobile-api', to: 'auth' }, { from: 'mobile-api', to: 'transfers' },
+          { from: 'transfers', to: 'fraud-check' }, { from: 'transfers', to: 'ledger-db' },
+        ],
+      },
+    }),
+  },
+  {
     slug: 'pool-exhaustion',
     name: 'Database connection pool exhaustion',
     description: 'A slow query halves database throughput at T+60s. Try a bigger pool, a breaker, or a rate limit.',

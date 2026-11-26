@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Trash2, Wrench } from 'lucide-react'
 import { demoScenario, deriveScenarioFromIncident } from '@faultline/engine'
 import { Button, ConfirmModal, useToast } from '@/components/ui'
@@ -16,6 +16,7 @@ export function CloudIncidentPage({ incidentId }: { incidentId: string }) {
   const [confirm, setConfirm] = useState(false)
   const [requested, setRequested] = useState<{ id: string; n: number } | null>(null)
   const navigate = useNavigate()
+  const [params] = useSearchParams()
   const { success, error } = useToast()
 
   const sim = useMemo(() => {
@@ -65,6 +66,7 @@ export function CloudIncidentPage({ incidentId }: { incidentId: string }) {
         suggestedInterventions={sim?.suggested}
         requestedEvent={requested}
         embedded
+        initialMode={params.get('view') === 'report' ? 'postmortem' : undefined}
         headerLeft={
           <Link to="/incidents" className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Back to incidents">
             <ArrowLeft className="size-4" /><LogoMark className="size-4" title="" />

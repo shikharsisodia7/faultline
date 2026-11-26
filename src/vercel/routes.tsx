@@ -1,9 +1,12 @@
+import { lazy } from 'react'
 import { useParams, type RouteObject } from 'react-router-dom'
-import { DocsPage } from '../features/docs/DocsPage'
-import { AnalyticsPage, ComparePage } from '../features/insights/InsightPages'
 import { useDemoDatasets } from '../features/insights/useDemoDatasets'
-import { LabPage } from '../features/lab/LabPage'
-import { useLocalLabStore } from '../features/lab/ChaosLab'
+import { useLocalLabStore } from '../features/lab/useLocalLabStore'
+
+const DocsPage = lazy(() => import('../features/docs/DocsPage').then((m) => ({ default: m.DocsPage })))
+const LabPage = lazy(() => import('../features/lab/LabPage').then((m) => ({ default: m.LabPage })))
+const ComparePage = lazy(() => import('../features/insights/InsightPages').then((m) => ({ default: m.ComparePage })))
+const AnalyticsPage = lazy(() => import('../features/insights/InsightPages').then((m) => ({ default: m.AnalyticsPage })))
 
 const INTRO = 'In the standalone demo these are the three synthetic incidents. The full app on DeepSpace includes your own imported incidents.'
 

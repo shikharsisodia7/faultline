@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Check, ChevronDown, Pause, Play, RotateCcw } fro
 import type { DemoScenario, IncidentAnalysis, RunResult } from '@faultline/engine'
 import { SEVERITY_RANK } from '@faultline/engine'
 import { cn } from '@/lib/utils'
-import { CANONICAL_URL, IS_STANDALONE } from '@/lib/target'
+import { fullAppHref } from '@/lib/target'
 import { LogoMark } from '../brand/Logo'
 import { FaultlineTimeline } from '../story/FaultlineTimeline'
 import { durationText, friendlyName, pctText, totalsAt } from '../story/plain'
@@ -307,7 +307,7 @@ function CompareOutcomes({ demo, outcome, markers, onTryAnother, onEngineering }
               <button type="button" onClick={() => onEngineering('simulate')} className="fl-btn-quiet inline-flex h-10 items-center rounded-xl px-4 text-[14px]">View technical details</button>
               <button type="button" onClick={() => onEngineering('postmortem')} className="fl-btn-quiet inline-flex h-10 items-center rounded-xl px-4 text-[14px]">Create incident report</button>
               <Link to="/demo" className="fl-btn-quiet inline-flex h-10 items-center rounded-xl px-4 text-[14px]">Explore another scenario</Link>
-              <a href={IS_STANDALONE ? `${CANONICAL_URL}/incidents/new` : '/incidents/new'} className="inline-flex h-10 items-center gap-1 rounded-xl px-3 text-[14px] text-muted-foreground hover:text-foreground">Analyze your own incident <ArrowRight className="size-4" /></a>
+              {fullAppHref('/incidents/new') ? <a href={fullAppHref('/incidents/new')!} className="inline-flex h-10 items-center gap-1 rounded-xl px-3 text-[14px] text-muted-foreground hover:text-foreground">Analyze your own incident <ArrowRight className="size-4" /></a> : null}
             </>
           }
         />

@@ -126,6 +126,12 @@ export default function Navigation() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => { window.location.assign('/settings') }}>
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { window.location.assign('/docs') }}>
+                  Documentation
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut aria-hidden />
                   Sign out

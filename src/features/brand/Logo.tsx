@@ -19,7 +19,7 @@ export function LogoMark({ className, title = 'Faultline' }: { className?: strin
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2 text-foreground', className)}>
-      <LogoMark className="size-[22px]" title="" />
+      <LogoMark className="size-[26px]" title="" />
       <span className="text-[16px] font-medium tracking-[-0.02em]">Faultline</span>
     </span>
   )

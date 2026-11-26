@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { DEMO_SCENARIOS, STOREFRONT, STOREFRONT_CHOICES } from '@faultline/engine'
 import { cn } from '@/lib/utils'
-import { CANONICAL_URL, IS_STANDALONE, REPO_URL } from '@/lib/target'
+import { fullAppHref, IS_STANDALONE, REPO_URL } from '@/lib/target'
 import { WhatIfExplorer } from '../story/WhatIfExplorer'
 import { HeroRecorder } from './HeroRecorder'
 import { MarketingFooter, MarketingNav } from './MarketingChrome'
@@ -295,7 +295,7 @@ export function Landing() {
             </div>
             {IS_STANDALONE ? (
               <p className="mx-auto mt-8 max-w-xl text-[13px] text-muted-foreground">
-                You are on the standalone demo. Sign-in, private uploads, and live collaboration are in the <a href={CANONICAL_URL} className="underline underline-offset-2">full app on DeepSpace</a>.
+                You are on the standalone demo. Sign-in, private uploads, and live collaboration are in the {fullAppHref() ? <a href={fullAppHref()!} className="underline underline-offset-2">full app on DeepSpace</a> : 'full app on DeepSpace'}.
               </p>
             ) : null}
           </div>

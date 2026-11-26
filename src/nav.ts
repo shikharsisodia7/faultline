@@ -16,13 +16,10 @@ export interface NavItem {
 }
 
 export const nav: NavItem[] = [
-  { path: '/incidents', label: 'Incidents' },
-  { path: '/demo', label: 'Demo' },
-  { path: '/lab', label: 'Chaos lab' },
-  { path: '/compare', label: 'Compare' },
-  { path: '/analytics', label: 'Analytics' },
-  { path: '/docs', label: 'Docs' },
-  { path: '/settings', label: 'Settings' },
+  { path: '/home', label: 'Home' },
+  { path: '/incidents', label: 'Investigate' },
+  { path: '/lab', label: 'Experiment' },
+  { path: '/reports', label: 'Reports' },
   // The /api-status debug page still exists — add
   // `{ path: '/api-status', label: 'API Status', devOnly: true }` to surface it.
   // ── Features add nav items below this line ──

@@ -68,7 +68,7 @@ export function HeroRecorder() {
           {onBranch ? <span className="rounded-full bg-[var(--color-sim-muted)] px-2 py-0.5 text-[11.5px] text-[var(--color-sim)]">Showing: {r!.label}</span> : null}
         </div>
         <div className="grid gap-5 px-4 pb-5 pt-5 sm:px-6">
-          <SystemDiagram parts={PARTS.map((p) => ({ ...p, detail: details[p.id] }))} calls={CALLS} status={status} dense />
+          <div className="mx-auto w-full max-w-[760px]"><SystemDiagram parts={PARTS.map((p) => ({ ...p, detail: details[p.id] }))} calls={CALLS} status={status} /></div>
           <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
             <p className="min-h-[3em] text-[15px] leading-relaxed text-foreground" aria-live="polite">{captionAt(sample, ph.t)}</p>
             <dl className="flex gap-5 text-right">

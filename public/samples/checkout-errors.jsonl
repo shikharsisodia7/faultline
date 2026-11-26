@@ -1,0 +1,11 @@
+{"timestamp":"2026-10-14T17:04:10.250Z","service":"checkout-svc","level":"error","message":"call to pricing-svc timed out after 1500 ms","trace_id":"4bf92f3577b34da6a3ce929d0e0e4736","span_id":"00f067aa0ba902b7","request_id":"req-91"}
+{"timestamp":"2026-10-14T17:04:02.000Z","service":"pricing-svc","level":"info","type":"deploy","message":"Deploy pricing-svc v2.14.0","deployment_id":"pricing-svc@v2.14.0"}
+{"timestamp":"2026-10-14T17:04:09.900Z","service":"pricing-db","level":"error","message":"connection pool exhausted: 14/14 in use, 40 waiting"}
+this line is not json
+{"timestamp":"not a time","service":"checkout-svc","level":"error","message":"bad timestamp"}
+{"service":"checkout-svc","level":"error","message":"no timestamp at all"}
+{"timestamp":"2026-10-14T17:04:10.250Z","service":"checkout-svc","level":"error","message":"call to pricing-svc timed out after 1500 ms","trace_id":"4bf92f3577b34da6a3ce929d0e0e4736","span_id":"00f067aa0ba902b7","request_id":"req-91"}
+{"timestamp":"2026-10-14T17:04:11+02:00","service":"edge-gateway","level":"warn","message":"retrying checkout (attempt 2/3) password=hunter2 user=jane@example.com"}
+[1,2,3]
+{"timestamp":1792083852000,"service":"edge-gateway","level":3,"message":"HTTP 504 returned to client"}
+{"timestamp":"2026-10-14 17:04:12","message":"service missing and zone missing","level":"WARNING"}

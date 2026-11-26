@@ -155,7 +155,7 @@ export function Workspace(props: WorkspaceProps) {
   const tabs: Array<{ id: WorkspaceMode; label: string; disabled?: boolean }> = [
     { id: 'investigate', label: 'Investigate' },
     { id: 'simulate', label: 'Simulate', disabled: !props.scenario },
-    { id: 'postmortem', label: 'Postmortem' },
+    { id: 'postmortem', label: 'Incident report' },
   ]
 
   const timeline = (
