@@ -13,6 +13,7 @@ import { SidePanel } from './SidePanel'
 import { TimelineView } from './TimelineView'
 import { TopologyView } from './TopologyView'
 import { useReplayController } from './useReplayController'
+import { ModeSwitch } from '../guided/GuidedDemo'
 
 export type WorkspaceMode = 'investigate' | 'simulate' | 'postmortem'
 
@@ -34,6 +35,11 @@ export interface WorkspaceProps {
   requestedEvent?: { id: string; n: number } | null
   /** Fill the parent (inside the app layout) instead of the viewport. */
   embedded?: boolean
+  /** Initial playhead (UTC ms) and mode, e.g. when arriving from guided mode. */
+  initialT?: number
+  initialMode?: WorkspaceMode
+  /** Switch to the guided view, carrying the current playhead (UTC ms). */
+  onGuided?: (wallT: number) => void
 }
 
 type MobilePane = 'graph' | 'timeline' | 'evidence' | 'panels'
@@ -41,8 +47,8 @@ type MobilePane = 'graph' | 'timeline' | 'evidence' | 'panels'
 export function Workspace(props: WorkspaceProps) {
   const { analysis, adapter } = props
   const { dataset, replay, graph } = analysis
-  const ctl = useReplayController(replay)
-  const [mode, setMode] = useState<WorkspaceMode>('investigate')
+  const ctl = useReplayController(replay, props.initialT)
+  const [mode, setMode] = useState<WorkspaceMode>(props.initialMode ?? 'investigate')
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [selectedService, setSelectedService] = useState<string | null>(null)
   const [query, setQuery] = useState('')
@@ -218,8 +224,9 @@ export function Workspace(props: WorkspaceProps) {
           </div>
         ) : null}
         <div className="ml-auto flex items-center gap-2">
-          <span className="hidden text-[11px] text-muted-foreground md:inline" title={adapter.notice}>{adapter.notice}</span>
+          <span className="hidden text-[11px] text-muted-foreground 2xl:inline" title={adapter.notice}>{adapter.notice}</span>
           {props.headerRight}
+          {props.onGuided ? <ModeSwitch mode="engineering" onGuided={() => props.onGuided!(ctl.t)} /> : null}
         </div>
       </header>
 

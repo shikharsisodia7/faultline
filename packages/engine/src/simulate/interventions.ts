@@ -120,7 +120,7 @@ export function branchScenario(scenario: SimScenario, atSec: number, interventio
       case 'db_pool':
         if (!(iv.capacity >= 1 && iv.capacity <= 10_000)) throw new RangeError('Pool size must be within [1, 10000].')
         at({ kind: 'set_service', service: iv.service, patch: { capacity: Math.round(iv.capacity) } }, describeIntervention(iv))
-        assumptions.push(`Database ${iv.service} can actually serve ${iv.capacity} concurrent connections; contention still grows with utilization. Was ${svc(iv.service).capacity}.`)
+        assumptions.push(`${iv.service} can actually serve ${iv.capacity} concurrent connections (was ${svc(iv.service).capacity}); its queries still slow down as it gets busier.`)
         break
       case 'circuit_breaker': {
         const cur = svc(iv.service).circuitBreaker

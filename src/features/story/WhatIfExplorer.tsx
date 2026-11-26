@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Pause, Play, RotateCcw } from 'lucide-react'
 import type { Choice, RunResult, SimScenario } from '@faultline/engine'
+import type { BranchResponse } from '../engine/protocol'
 import { cn } from '@/lib/utils'
 import { FaultlineTimeline, type TimelineMarker } from './FaultlineTimeline'
 import { explainOutcome, pctText, recoveryText } from './plain'
@@ -13,7 +14,9 @@ interface Props {
   defaultDecisionSec: number
   baseline?: RunResult
   /** Called when a result is ready (e.g. to advance a guided flow). */
-  onResult?: (summary: { overall: string; explanation: string }) => void
+  onResult?: (outcome: Outcome) => void
+  /** Hide the inline comparison (a guided flow shows it on its own step). */
+  hideComparison?: boolean
   /** Extra actions rendered under the comparison. */
   actions?: React.ReactNode
   compactHeader?: boolean
@@ -26,7 +29,13 @@ const fmt = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 
  * the real simulator runs the original and the alternative, and the Faultline
  * Timeline shows where they diverge.
  */
-export function WhatIfExplorer({ scenario, choices, markers, defaultDecisionSec, baseline: initial, onResult, actions, compactHeader }: Props) {
+export interface Outcome extends BranchResponse {
+  atSec: number
+  label: string
+  explanation: string
+}
+
+export function WhatIfExplorer({ scenario, choices, markers, defaultDecisionSec, baseline: initial, onResult, actions, compactHeader, hideComparison }: Props) {
   const wf = useWhatIf(scenario, initial)
   const ph = usePlayhead(scenario.durationSec, { speed: Math.max(20, scenario.durationSec / 12) })
   const [choiceId, setChoiceId] = useState(choices[0]?.id ?? '')
@@ -41,7 +50,7 @@ export function WhatIfExplorer({ scenario, choices, markers, defaultDecisionSec,
 
   useEffect(() => {
     if (!r || !wf.baseline) return
-    onResult?.({ overall: r.comparison.overall, explanation: explainOutcome(r.baseline, r.branch, r.comparison, r.label, r.atSec) })
+    onResult?.({ ...r, explanation: explainOutcome(r.baseline, r.branch, r.comparison, r.label, r.atSec) })
     ph.seek(Math.max(0, r.atSec - 15))
     ph.play()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -124,19 +133,9 @@ export function WhatIfExplorer({ scenario, choices, markers, defaultDecisionSec,
           <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-border text-[13px] text-muted-foreground">Running the original timeline through the simulator…</div>
         )}
 
-        {r && !stale ? (
+        {r && !stale && !hideComparison ? (
           <div className="mt-6 fl-rise">
-            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-4">
-              <Metric label="Successful requests" before={pctText(r.baseline.summary.successRate)} after={pctText(r.branch.summary.successRate)} />
-              <Metric label="Failed requests" before={(r.baseline.summary.failed + r.baseline.summary.rateLimited).toLocaleString()} after={(r.branch.summary.failed + r.branch.summary.rateLimited).toLocaleString()} />
-              <Metric label="Time until recovery" before={recoveryText(r.baseline)} after={recoveryText(r.branch)} />
-              <Metric label="Systems affected" before={String(r.baseline.summary.affectedServices.length)} after={String(r.branch.summary.affectedServices.length)} />
-            </dl>
-            <p className="mt-4 text-[15px] leading-relaxed text-foreground">{explanation}</p>
-            <p className="mt-2 text-[12.5px] text-muted-foreground">
-              Simulated, not recorded: both paths come from the same seeded model of this system, identical until the decision point. {r.assumptions[0] ?? ''}
-            </p>
-            {actions ? <div className="mt-4 flex flex-wrap gap-2">{actions}</div> : null}
+            <OutcomeComparison outcome={{ ...r, explanation }} actions={actions} />
           </div>
         ) : r && stale ? (
           <p className="mt-4 text-[13.5px] text-muted-foreground">You changed the decision. Choose “Explore this outcome” to simulate it.</p>
@@ -149,6 +148,25 @@ export function WhatIfExplorer({ scenario, choices, markers, defaultDecisionSec,
 function labelFor(choice: Choice | undefined, amount: number): string {
   if (!choice) return ''
   return choice.amount ? `${choice.label} (${amount} ${choice.amount.unit})` : choice.label
+}
+
+/** Original vs. alternative, in plain metrics and one honest sentence. */
+export function OutcomeComparison({ outcome: r, actions }: { outcome: Outcome; actions?: React.ReactNode }) {
+  return (
+    <div>
+      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-4">
+        <Metric label="Successful requests" before={pctText(r.baseline.summary.successRate)} after={pctText(r.branch.summary.successRate)} />
+        <Metric label="Failed requests" before={(r.baseline.summary.failed + r.baseline.summary.rateLimited).toLocaleString()} after={(r.branch.summary.failed + r.branch.summary.rateLimited).toLocaleString()} />
+        <Metric label="Time until recovery" before={recoveryText(r.baseline)} after={recoveryText(r.branch)} />
+        <Metric label="Systems affected" before={String(r.baseline.summary.affectedServices.length)} after={String(r.branch.summary.affectedServices.length)} />
+      </dl>
+      <p className="mt-4 text-[15px] leading-relaxed text-foreground">{r.explanation}</p>
+      <p className="mt-2 text-[12.5px] text-muted-foreground">
+        Simulated, not recorded: both paths come from the same seeded model of this system and are identical until the decision point.{r.comparison.prefixIdentical ? ' (Verified for this run.)' : ''} {r.assumptions[0] ?? ''}
+      </p>
+      {actions ? <div className="mt-4 flex flex-wrap gap-2">{actions}</div> : null}
+    </div>
+  )
 }
 
 function Metric({ label, before, after }: { label: string; before: string; after: string }) {

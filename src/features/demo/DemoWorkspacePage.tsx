@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Download } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { Download } from 'lucide-react'
 import type { IncidentDataset, Intervention, RunResult } from '@faultline/engine'
 import { analyzeIncident, demoScenario, toJsonl } from '@faultline/engine'
 import { downloadText } from '@/lib/format'
 import { IS_STANDALONE } from '@/lib/target'
 import { LogoMark } from '../brand/Logo'
 import { loadDemo } from '../engine/client'
+import { GuidedDemo } from '../guided/GuidedDemo'
 import { useLocalWorkspace } from '../workspace/adapter'
-import { Workspace } from '../workspace/Workspace'
+import { Workspace, type WorkspaceMode } from '../workspace/Workspace'
 
 export const SUGGESTED: Record<string, Intervention[]> = {
   'checkout-cascade': [{ kind: 'rollback_deployment', service: 'pricing-svc' }],
@@ -18,43 +19,59 @@ export const SUGGESTED: Record<string, Intervention[]> = {
 
 export function WorkspaceLoading({ label }: { label: string }) {
   return (
-    <div className="flex h-dvh flex-col items-center justify-center gap-3 bg-background" role="status" aria-live="polite">
-      <LogoMark className="size-8 animate-pulse" title="" />
-      <p className="font-mono text-[12px] text-muted-foreground">{label}</p>
+    <div className="flex h-dvh flex-col items-center justify-center gap-4 bg-background" role="status" aria-live="polite">
+      <LogoMark className="size-9 animate-pulse" title="" />
+      <p className="max-w-sm text-center text-[14.5px] text-muted-foreground">{label}</p>
     </div>
   )
 }
 
-function DemoWorkspace({ slug, dataset, run, headerRight }: { slug: string; dataset: IncidentDataset; run: RunResult; headerRight?: ReactNode }) {
+const TABS: WorkspaceMode[] = ['investigate', 'simulate', 'postmortem']
+
+function DemoViews({ slug, dataset, run, headerRight }: { slug: string; dataset: IncidentDataset; run: RunResult; headerRight?: ReactNode }) {
   const demo = demoScenario(slug)!
+  const [params, setParams] = useSearchParams()
+  const mode = params.get('mode') === 'engineering' ? 'engineering' : 'guided'
+  const tab = TABS.includes(params.get('tab') as WorkspaceMode) ? (params.get('tab') as WorkspaceMode) : 'investigate'
+  const tSec = Math.max(0, Math.min(demo.scenario.durationSec, Number(params.get('t')) || 0))
   const analysis = useMemo(() => analyzeIncident(dataset), [dataset])
   const adapter = useLocalWorkspace(dataset.meta.id, dataset.annotations, IS_STANDALONE ? 'Local only: notes and reviews stay in this browser.' : 'Demo: notes stay in this browser. Sign in to collaborate.')
+
+  const go = (next: Record<string, string>) => setParams(next, { replace: false })
+
+  if (mode === 'guided') {
+    return <GuidedDemo demo={demo} analysis={analysis} baseline={run} initialT={tSec} onEngineering={({ t, tab: nextTab }) => go({ mode: 'engineering', tab: nextTab ?? 'investigate', t: String(Math.round(t)) })} />
+  }
   return (
-    <Workspace
-      analysis={analysis}
-      adapter={adapter}
-      scenario={demo.scenario}
-      scenarioOrigin={demo.baseTime}
-      baseline={run}
-      suggestedBranchSec={demo.suggested.atSec}
-      suggestedInterventions={SUGGESTED[slug]}
-      modelAssumptions={[]}
-      tour
-      headerLeft={
-        <Link to="/demo" className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Back to demo incidents">
-          <ArrowLeft className="size-4" />
-          <LogoMark className="size-4" title="" />
-        </Link>
-      }
-      headerRight={
-        <>
-          <button type="button" onClick={() => downloadText(`${slug}.synthetic.jsonl`, toJsonl(dataset.events), 'application/x-ndjson')} className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border px-2 text-[12px] text-muted-foreground hover:text-foreground" title="Download the raw synthetic evidence as JSONL">
-            <Download className="size-3.5" /> Fixture
-          </button>
-          {headerRight}
-        </>
-      }
-    />
+    <div data-theme={params.get('theme') === 'dark' ? 'dark' : undefined}>
+      <Workspace
+        key={`${tab}-${tSec}`}
+        analysis={analysis}
+        adapter={adapter}
+        scenario={demo.scenario}
+        scenarioOrigin={demo.baseTime}
+        baseline={run}
+        suggestedBranchSec={demo.suggested.atSec}
+        suggestedInterventions={SUGGESTED[slug]}
+        modelAssumptions={[]}
+        initialT={demo.baseTime + tSec * 1000}
+        initialMode={tab}
+        onGuided={(wallT) => go({ mode: 'guided', t: String(Math.max(0, Math.round((wallT - demo.baseTime) / 1000))) })}
+        headerLeft={
+          <Link to="/demo" className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="All examples">
+            <LogoMark className="size-5" title="" />
+          </Link>
+        }
+        headerRight={
+          <>
+            <button type="button" onClick={() => downloadText(`${slug}.synthetic.jsonl`, toJsonl(dataset.events), 'application/x-ndjson')} className="hidden h-8 items-center gap-1.5 rounded-lg px-2 text-[12.5px] text-muted-foreground hover:text-foreground lg:inline-flex" title="Download the raw synthetic evidence as JSONL">
+              <Download className="size-3.5" /> Sample data
+            </button>
+            {headerRight}
+          </>
+        }
+      />
+    </div>
   )
 }
 
@@ -72,20 +89,20 @@ export function DemoWorkspacePage({ slug, headerRight }: { slug: string; headerR
   if (!demo) {
     return (
       <div className="flex h-dvh flex-col items-center justify-center gap-3 text-center">
-        <p className="text-[14px] text-foreground">No demo incident called “{slug}”.</p>
-        <Link to="/demo" className="text-[13px] text-muted-foreground underline">See all demo incidents</Link>
+        <p className="text-[16px] text-foreground">There is no example called “{slug}”.</p>
+        <Link to="/demo" className="text-[14px] text-muted-foreground underline">See all examples</Link>
       </div>
     )
   }
   if (error) {
     return (
       <div role="alert" className="flex h-dvh flex-col items-center justify-center gap-3 px-6 text-center">
-        <p className="text-[14px] text-foreground">The simulation could not generate this incident.</p>
+        <p className="text-[16px] text-foreground">The simulation could not build this example.</p>
         <p className="font-mono text-[12px] text-muted-foreground">{error}</p>
-        <button type="button" className="rounded-md border border-border px-3 py-1.5 text-[13px]" onClick={() => { setError(null); loadDemo(slug).then(setData).catch((e: Error) => setError(e.message)) }}>Try again</button>
+        <button type="button" className="fl-btn-quiet rounded-lg px-3 py-2 text-[14px]" onClick={() => { setError(null); loadDemo(slug).then(setData).catch((e: Error) => setError(e.message)) }}>Try again</button>
       </div>
     )
   }
-  if (!data) return <WorkspaceLoading label={`Simulating “${demo.title}” (≈50k requests)…`} />
-  return <DemoWorkspace slug={slug} dataset={data.dataset} run={data.run} headerRight={headerRight} />
+  if (!data) return <WorkspaceLoading label={`Rebuilding “${demo.title}”. Faultline is simulating about 50,000 requests in your browser…`} />
+  return <DemoViews slug={slug} dataset={data.dataset} run={data.run} headerRight={headerRight} />
 }
