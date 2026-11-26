@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Engine tests
+        run: npm run test:engine
+
+      - name: Server and schema tests
+        run: npx vitest run src/server src/schemas --config packages/engine/vitest.config.ts --root .
+
+      - name: Type check (engine)
+        run: npm run typecheck:engine
+
+      - name: Type check (app)
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Standalone production build
+        run: npm run build:vercel
+
+  # DeepSpace smoke/api/collab suites need an authenticated DeepSpace session
+  # and a registered app, so they run locally (`npm test`), not in CI.
