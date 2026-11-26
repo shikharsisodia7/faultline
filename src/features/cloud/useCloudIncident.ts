@@ -56,8 +56,8 @@ export interface CloudIncident {
 
 /** Live, RBAC-filtered view of one incident, shaped for the shared Workspace UI. */
 export function useCloudIncident(incidentId: string): CloudIncident {
-  const { user } = useAuth() as { user?: { id?: string; name?: string } | null }
-  const myId = user?.id ?? ''
+  const { userId } = useAuth()
+  const myId = userId ?? ''
   const where = { incidentId }
   // RBAC already limits this to incidents in the caller's workspaces.
   const inc = useQuery<IncidentRecord>('incidents')

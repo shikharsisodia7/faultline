@@ -8,7 +8,7 @@ import { useDemoDatasets } from './useDemoDatasets'
 
 /** Compare/analytics inside the app: your incidents, optionally plus labeled demo incidents. */
 export function AppInsightPage({ kind }: { kind: 'compare' | 'analytics' }) {
-  const { isSignedIn } = useAuth() as { isSignedIn?: boolean }
+  const { isSignedIn } = useAuth()
   const mine = useMyIncidentDatasets()
   const [withDemos, setWithDemos] = useState(true)
   const showDemos = withDemos || !isSignedIn

@@ -12,8 +12,8 @@ export interface WorkspaceView {
 
 /** The caller's workspaces (RBAC-filtered) and their role in each; ensures a personal workspace exists. */
 export function useWorkspaces() {
-  const { user } = useAuth() as { user?: { id?: string } | null }
-  const myId = user?.id ?? ''
+  const { userId } = useAuth()
+  const myId = userId ?? ''
   const ws = useQuery<{ name: string; kind: 'personal' | 'team'; ownerId: string }>('workspaces')
   const members = useQuery<{ teamId: string; userId: string; role: WorkspaceView['role']; status: string; displayName?: string }>('team_members')
   const [ensureError, setEnsureError] = useState<string | null>(null)

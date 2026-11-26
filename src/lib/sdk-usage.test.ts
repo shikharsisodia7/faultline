@@ -1,5 +1,3 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 /**
@@ -10,17 +8,15 @@ import { describe, expect, it } from 'vitest'
  * signed-in users never got a personal workspace and could not import evidence.
  * Use the SDK's own types (`useAuth().userId`, `useAuthUser().user`) instead.
  */
-function sources(dir: string): string[] {
-  return readdirSync(dir).flatMap((name) => {
-    const p = join(dir, name)
-    if (statSync(p).isDirectory()) return sources(p)
-    return /\.(ts|tsx)$/.test(name) && !name.endsWith('.test.ts') ? [p] : []
-  })
-}
+const sources = import.meta.glob<string>(['/src/**/*.{ts,tsx}', '!/src/**/*.test.ts'], { query: '?raw', import: 'default', eager: true })
 
 describe('DeepSpace SDK usage', () => {
+  it('scans the app sources', () => {
+    expect(Object.keys(sources).length).toBeGreaterThan(50)
+  })
+
   it('never type-casts auth hook results (the compiler must check them)', () => {
-    const offenders = sources(join(process.cwd(), 'src')).filter((f) => /\buseAuth(User)?\(\)\s+as\b/.test(readFileSync(f, 'utf8')))
+    const offenders = Object.entries(sources).filter(([, text]) => /\buseAuth(User)?\(\)\s+as\b/.test(text)).map(([path]) => path)
     expect(offenders).toEqual([])
   })
 })

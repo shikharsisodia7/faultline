@@ -1,20 +1,20 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, FlaskConical, Upload } from 'lucide-react'
-import { useAuth, useQuery } from 'deepspace'
+import { useAuthUser, useQuery } from 'deepspace'
 import { DEMO_SCENARIOS } from '@faultline/engine'
 import { KindTag } from '../shell/atoms'
 import type { IncidentRecord } from './useCloudIncident'
 
 /** Where a visitor starts: continue, import, learn from examples, or experiment. */
 export function AppHome() {
-  const { isSignedIn, user } = useAuth() as { isSignedIn?: boolean; user?: { name?: string } | null }
+  const { isSignedIn, user } = useAuthUser()
   const incidents = useQuery<IncidentRecord>('incidents', { orderBy: 'updatedAt', orderDir: 'desc', limit: 5 })
   const recent = isSignedIn ? incidents.records : []
   return (
     <div className="mx-auto max-w-5xl px-5 py-12">
       <title>Home · Faultline</title>
       <p className="fl-eyebrow">Home</p>
-      <h1 className="mt-3 text-[34px] font-normal leading-tight text-foreground">{isSignedIn && user?.name ? `Welcome back, ${user.name.split(' ')[0]}.` : 'Where would you like to start?'}</h1>
+      <h1 className="mt-3 text-[34px] font-normal leading-tight text-foreground">{isSignedIn && user?.firstName ? `Welcome back, ${user.firstName}.` : 'Where would you like to start?'}</h1>
 
       {recent.length ? (
         <section className="mt-10" aria-labelledby="continue">

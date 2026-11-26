@@ -6,7 +6,7 @@ import { toEvent, type IncidentRecord } from './useCloudIncident'
 
 /** Chaos-lab scenarios saved as personal DeepSpace records (read: 'own'). */
 export function useCloudLabStore(): LabStore {
-  const { isSignedIn } = useAuth() as { isSignedIn?: boolean }
+  const { isSignedIn } = useAuth()
   const q = useQuery<{ name: string; scenario: SimScenario }>('simulation_configs', { orderBy: 'updatedAt', orderDir: 'desc' })
   const m = useMutations<{ name: string; scenario: SimScenario }>('simulation_configs')
   return useMemo(() => ({

@@ -7,7 +7,7 @@ import type { IncidentRecord } from './useCloudIncident'
 
 /** Readable incident reports: one per incident, generated from its evidence. */
 export function ReportsPage() {
-  const { isSignedIn } = useAuth() as { isSignedIn?: boolean }
+  const { isSignedIn } = useAuth()
   const incidents = useQuery<IncidentRecord>('incidents', { orderBy: 'updatedAt', orderDir: 'desc' })
   const mine = isSignedIn ? incidents.records.filter((r) => (r.data.eventCount ?? 0) > 0) : []
   return (
