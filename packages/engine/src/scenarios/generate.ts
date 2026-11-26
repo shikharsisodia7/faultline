@@ -72,8 +72,10 @@ export function generateIncident(demo: DemoScenario, opts: Partial<GenerateOptio
 
   // Baseline traffic heartbeat so healthy services are visible on the timeline.
   for (const s of run.samples) {
-    if (s.t % 30 === 0) {
-      push(s.t * 1000, demo.scenario.model.entry, 'info', 'log', `${s.requests} req/s, ${s.succeeded} ok, p95 ${s.p95 ?? '-'} ms`, {}, { rps: s.requests, p95_ms: s.p95 ?? null })
+    // Stamped at the start of its one-second interval, so the first heartbeat
+    // sits at simulation t=0 and log time T+n equals simulation second n.
+    if ((s.t - 1) % 30 === 0) {
+      push((s.t - 1) * 1000, demo.scenario.model.entry, 'info', 'log', `${s.requests} req/s, ${s.succeeded} ok, p95 ${s.p95 ?? '-'} ms`, {}, { rps: s.requests, p95_ms: s.p95 ?? null })
     }
   }
 

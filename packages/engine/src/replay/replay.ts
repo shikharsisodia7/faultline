@@ -62,12 +62,15 @@ export const DEFAULT_REPLAY_OPTIONS: ReplayOptions = {
   recoveringMs: 90_000,
 }
 
-const RING = 32
+/** Recent error timestamps kept per service (bounds memory; caps errorsInWindow). */
+export const ERROR_RING = 256
+const RING = ERROR_RING
 
-const IMPORTANT_TYPES = new Set<EventType>([
-  'deploy', 'rollback', 'config_change', 'alert', 'circuit_open', 'circuit_close',
-  'saturation', 'queue_full', 'scale', 'recovery',
-])
+/** Always keyframes: changes, alerts, and recoveries. */
+const IMPORTANT_TYPES = new Set<EventType>(['deploy', 'rollback', 'config_change', 'alert', 'scale', 'recovery'])
+/** Keyframes only on their first occurrence per service within KEYFRAME_COOLDOWN_MS. */
+const BURSTY_TYPES = new Set<EventType>(['saturation', 'queue_full', 'circuit_open', 'circuit_close'])
+const KEYFRAME_COOLDOWN_MS = 60_000
 
 function emptyAccumulator(): ServiceAccumulator {
   return {
@@ -193,13 +196,18 @@ export class ReplayEngine {
     const acc: Accumulated = { index: 0, services: {}, activeAlerts: [], firstErrorTs: null }
     const keyframes: Keyframe[] = []
     const firstErrorSeen = new Set<string>()
+    const lastBurst = new Map<string, number>()
     this.snapshots.push(cloneAccumulated(acc))
     for (let i = 0; i < sorted.length; i++) {
       const e = sorted[i]
       let reason: string | null = null
       if (IMPORTANT_TYPES.has(e.type)) reason = e.type.replace('_', ' ')
-      else if (SEVERITY_RANK[e.severity] >= 3 && !firstErrorSeen.has(e.service)) reason = `first error in ${e.service}`
-      else if (e.severity === 'critical') reason = 'critical'
+      else if (BURSTY_TYPES.has(e.type)) {
+        const key = `${e.service}|${e.type}`
+        const prev = lastBurst.get(key)
+        if (prev === undefined || e.ts - prev > KEYFRAME_COOLDOWN_MS) reason = e.type.replace('_', ' ')
+        lastBurst.set(key, e.ts)
+      } else if (SEVERITY_RANK[e.severity] >= 3 && !firstErrorSeen.has(e.service)) reason = `first error in ${e.service}`
       if (SEVERITY_RANK[e.severity] >= 3) firstErrorSeen.add(e.service)
       if (reason) keyframes.push({ index: i, ts: e.ts, eventId: e.id, service: e.service, reason })
       applyEvent(acc, e)

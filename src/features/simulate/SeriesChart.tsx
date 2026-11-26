@@ -20,7 +20,7 @@ interface Props {
 }
 
 /** Minimal multi-series line chart with a hover readout. */
-export function SeriesChart({ series, height = 150, yFormat, xFormat = (v) => `${Math.floor(v / 60)}:${String(Math.round(v % 60)).padStart(2, '0')}`, yMax, marker, title, description }: Props) {
+export function SeriesChart({ series, height = 150, yFormat, xFormat = (v) => { const s = Math.round(v); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }, yMax, marker, title, description }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [w, setW] = useState(600)
   const [hover, setHover] = useState<number | null>(null)
@@ -88,7 +88,7 @@ export function SeriesChart({ series, height = 150, yFormat, xFormat = (v) => `$
           ))}
           {[0, 0.25, 0.5, 0.75, 1].map((f) => {
             const xv = xMin + f * (xMax - xMin)
-            return <text key={f} x={sx(xv)} y={height - 5} textAnchor="middle" fontSize={10} fontFamily="var(--font-mono)" fill="var(--color-faint)">{xFormat(xv)}</text>
+            return <text key={f} x={sx(xv)} y={height - 5} textAnchor={f === 0 ? 'start' : f === 1 ? 'end' : 'middle'} fontSize={10} fontFamily="var(--font-mono)" fill="var(--color-faint)">{xFormat(xv)}</text>
           })}
           {marker ? (
             <g>

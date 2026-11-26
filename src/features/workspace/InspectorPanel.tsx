@@ -112,7 +112,8 @@ export function InspectorPanel({ analysis, event, adapter, state, onSelectEvent,
 
   const fields: Array<[string, string | undefined]> = [
     ['service', event.service],
-    ['time', `${relTime(event.ts - start)} · ${utcDateTime(event.ts)}`],
+    ['time', relTime(event.ts - start)],
+    ['utc', utcDateTime(event.ts)],
     ['severity', event.severity],
     ['type', event.type],
     ['trace', event.traceId],

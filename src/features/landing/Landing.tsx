@@ -48,9 +48,9 @@ export function Landing() {
               {Array.from({ length: 12 }, (_, i) => <path key={`v${i}`} d={`M${i * 100} 0V520`} />)}
               {Array.from({ length: 6 }, (_, i) => <path key={`h${i}`} d={`M0 ${i * 100}H1200`} />)}
             </g>
-            <path d="M0 330h420l18-20 16 44 18-96 22 118 16-70 14 24h176" fill="none" stroke="var(--color-faint)" strokeWidth="1.5" />
-            <path d="M760 360h30l14-18 16 52 20-88 18 72 14-30 14 12h314" fill="none" stroke="var(--color-faint)" strokeWidth="1.5" opacity=".7" />
-            <path d="M770 360h430" fill="none" stroke="var(--color-sim)" strokeWidth="1.5" strokeDasharray="6 6" opacity=".55" />
+            <path d="M0 450h420l18-20 16 44 18-96 22 118 16-70 14 24h176" fill="none" stroke="var(--color-faint)" strokeWidth="1.5" />
+            <path d="M760 480h30l14-18 16 52 20-88 18 72 14-30 14 12h314" fill="none" stroke="var(--color-faint)" strokeWidth="1.5" opacity=".7" />
+            <path d="M770 480h430" fill="none" stroke="var(--color-sim)" strokeWidth="1.5" strokeDasharray="6 6" opacity=".55" />
             <path d="M815 20 690 500" stroke="var(--color-fault)" strokeWidth="2" opacity=".85" />
           </svg>
           <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 sm:pt-24">
