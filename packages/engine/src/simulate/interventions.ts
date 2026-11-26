@@ -11,6 +11,7 @@ export type Intervention =
   | { kind: 'retry_policy'; service: string; maxAttempts: number; backoffMs: number; jitter?: number }
   | { kind: 'isolate_dependency'; from: string; to: string }
   | { kind: 'recover_service'; service: string }
+  | { kind: 'set_timeout'; service: string; timeoutMs: number }
 
 export const INTERVENTION_KINDS: Array<{ kind: Intervention['kind']; label: string; description: string }> = [
   { kind: 'rollback_deployment', label: 'Roll back deployment', description: "Restore the service's parameters from before its deployment. If the deploy had not happened yet, it never happens." },
@@ -21,6 +22,7 @@ export const INTERVENTION_KINDS: Array<{ kind: Intervention['kind']; label: stri
   { kind: 'retry_policy', label: 'Change retry policy', description: 'Set attempts and backoff for a service, or for clients (service "client").' },
   { kind: 'isolate_dependency', label: 'Isolate dependency', description: 'Stop calling a dependency; the caller skips it (degraded but fast).' },
   { kind: 'recover_service', label: 'Recover service', description: 'Return a failed service to its baseline parameters and availability.' },
+  { kind: 'set_timeout', label: 'Change timeout', description: 'Set how long a service waits for each downstream call before giving up.' },
 ]
 
 /** Model state at `atSec` after applying scenario changes that occur strictly before it. */
@@ -61,6 +63,7 @@ export function describeIntervention(iv: Intervention): string {
     case 'retry_policy': return `Set ${iv.service === 'client' ? 'client' : iv.service} retries to ${iv.maxAttempts} attempt(s), ${iv.backoffMs} ms backoff`
     case 'isolate_dependency': return `Isolate ${iv.to} from ${iv.from}`
     case 'recover_service': return `Recover ${iv.service}`
+    case 'set_timeout': return `Set ${iv.service} timeout to ${iv.timeoutMs} ms`
   }
 }
 
@@ -148,6 +151,13 @@ export function branchScenario(scenario: SimScenario, atSec: number, interventio
         at({ kind: 'set_call', from: iv.from, to: iv.to, patch: { enabled: false } }, describeIntervention(iv))
         assumptions.push(`${iv.from} serves requests without ${iv.to} (e.g. cached or default data); the reduced response quality is not scored.`)
         break
+      case 'set_timeout': {
+        if (!(iv.timeoutMs >= 1 && iv.timeoutMs <= 600_000)) throw new RangeError('Timeout must be within [1, 600000] ms.')
+        const was = svc(iv.service).timeoutMs
+        at({ kind: 'set_service', service: iv.service, patch: { timeoutMs: Math.round(iv.timeoutMs) } }, describeIntervention(iv))
+        assumptions.push(`${iv.service} waits up to ${Math.round(iv.timeoutMs)} ms for each downstream call (was ${was} ms); calls already in flight keep their old deadline.`)
+        break
+      }
       case 'recover_service': {
         const base = scenario.model.services.find((s) => s.id === iv.service)
         if (!base) throw new Error(`Unknown service "${iv.service}".`)

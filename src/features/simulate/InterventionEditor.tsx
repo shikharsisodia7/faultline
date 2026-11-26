@@ -21,6 +21,7 @@ export function defaultIntervention(kind: Kind, scenario: SimScenario, atSec: nu
     case 'retry_policy': return { kind, service: m.services.find((s) => s.retry.maxAttempts > 1)?.id ?? 'client', maxAttempts: 1, backoffMs: 100 }
     case 'isolate_dependency': return { kind, from: call?.from ?? m.entry, to: call?.to ?? m.services[1].id }
     case 'recover_service': return { kind, service: nonEntry.id }
+    case 'set_timeout': { const caller = m.services.find((s) => m.calls.some((c) => c.from === s.id)) ?? m.services[0]; return { kind, service: caller.id, timeoutMs: caller.timeoutMs } }
   }
 }
 
@@ -124,6 +125,12 @@ export function InterventionEditor({ value, onChange, scenario, atSec }: { value
               </>
             ) : null}
             {iv.kind === 'recover_service' ? <ServiceSelect label="Service" value={iv.service} options={services} onChange={(service) => set(i, { ...iv, service })} /> : null}
+            {iv.kind === 'set_timeout' ? (
+              <>
+                <ServiceSelect label="Service" value={iv.service} options={services} onChange={(service) => set(i, { ...iv, service })} />
+                <NumberField label="Timeout ms" value={iv.timeoutMs} min={1} max={600000} onChange={(timeoutMs) => set(i, { ...iv, timeoutMs })} />
+              </>
+            ) : null}
           </div>
         </div>
       ))}

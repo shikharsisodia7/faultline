@@ -191,6 +191,29 @@ describe('counterfactual branches', () => {
     expect(r.samples.filter((x) => x.t > 40).every((x) => x.errorRate === 0)).toBe(true)
   })
 
+  it('a timeout change applies at the branch point and states its assumption', () => {
+    const { scenario: b, assumptions } = branchScenario(slow, 30, [{ kind: 'set_timeout', service: 'api', timeoutMs: 1500 }])
+    expect(modelAt(b, 29, true).services.find((s) => s.id === 'api')!.timeoutMs).toBe(400)
+    expect(modelAt(b, 31, true).services.find((s) => s.id === 'api')!.timeoutMs).toBe(1500)
+    expect(assumptions.join(' ')).toMatch(/was 400 ms/)
+    expect(compareRuns(runSimulation(slow), runSimulation(b), 30).prefixIdentical).toBe(true)
+  })
+
+  it('a timeout shorter than the dependency fails calls it used to complete', () => {
+    // db answers in ~10 ms; a 2 ms budget cannot be met, so the branch must
+    // turn a healthy system into a failing one rather than "help".
+    const healthy = small()
+    const { scenario: b } = branchScenario(healthy, 30, [{ kind: 'set_timeout', service: 'api', timeoutMs: 2 }])
+    const cmp = compareRuns(runSimulation(healthy), runSimulation(b), 30)
+    expect(cmp.overall).toBe('worse')
+    expect(runSimulation(b).samples.filter((x) => x.t > 33).every((x) => x.errorRate > 0.9)).toBe(true)
+  })
+
+  it('rejects timeouts outside the supported range', () => {
+    expect(() => branchScenario(slow, 30, [{ kind: 'set_timeout', service: 'api', timeoutMs: 0 }])).toThrow(RangeError)
+    expect(() => branchScenario(slow, 30, [{ kind: 'set_timeout', service: 'ghost', timeoutMs: 100 }])).toThrow(/Unknown service/)
+  })
+
   it('rejects interventions that reference unknown parts of the model', () => {
     expect(() => branchScenario(slow, 30, [{ kind: 'scale_capacity', service: 'ghost', capacity: 4 }])).toThrow(/Unknown service/)
     expect(() => branchScenario(slow, 999, [])).toThrow(RangeError)

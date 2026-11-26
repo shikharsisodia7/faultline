@@ -23,6 +23,6 @@ coverage/
 dist-vercel/
 *.local
 .DS_Store
-
-.vercel
+# Keep env files ignored, except the documented example (must stay last)
 .env*
+!.env.example
