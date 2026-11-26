@@ -22,6 +22,8 @@ interface Props {
   dense?: boolean
 }
 
+const clip = (text: string, n: number) => (text.length > n ? `${text.slice(0, n - 1).trimEnd()}…` : text)
+
 const STATUS: Record<PartStatus, { ring: string; fill: string; dot: string; word: string }> = {
   ok: { ring: 'rgba(31,29,26,0.12)', fill: '#ffffff', dot: 'var(--color-healthy)', word: 'Working' },
   idle: { ring: 'rgba(31,29,26,0.12)', fill: '#ffffff', dot: 'var(--color-faint)', word: 'Quiet' },
@@ -37,7 +39,7 @@ export function SystemDiagram({ parts, calls, status, highlight, highlightLabel 
   }, [parts, calls])
   const cols = Math.max(1, ...Array.from(layout.values()).map((l) => l.layer + 1))
   const rows = Math.max(1, ...Array.from(layout.values()).map((l) => l.order + 1))
-  const NW = dense ? 150 : 176
+  const NW = dense ? 172 : 196
   const NH = dense ? 64 : 72
   const GX = dense ? 44 : 64
   const GY = 22
@@ -89,8 +91,8 @@ export function SystemDiagram({ parts, calls, status, highlight, highlightLabel 
               ) : null}
               <rect width={NW} height={NH} rx={14} fill={s.fill} stroke={s.ring} strokeWidth={status[p.id] === 'ok' || !status[p.id] ? 1 : 1.75} style={{ transition: 'fill 300ms, stroke 300ms' }} />
               <circle cx={18} cy={24} r={4.5} fill={s.dot} style={{ transition: 'fill 300ms' }} />
-              <text x={30} y={28.5} fontSize={dense ? 14 : 15} fontWeight={500} fill="var(--color-foreground)">{p.name.length > 18 ? `${p.name.slice(0, 17)}…` : p.name}</text>
-              <text x={18} y={NH - 16} fontSize={12} fill="var(--color-muted-foreground)">{p.detail ?? s.word}</text>
+              <text x={30} y={28.5} fontSize={dense ? 14 : 15} fontWeight={500} fill="var(--color-foreground)">{clip(p.name, dense ? 19 : 22)}</text>
+              <text x={18} y={NH - 16} fontSize={12} fill="var(--color-muted-foreground)">{clip(p.detail ?? s.word, dense ? 24 : 28)}</text>
             </g>
           )
         })}

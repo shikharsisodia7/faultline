@@ -53,7 +53,7 @@ export function WhatIfExplorer({ scenario, choices, markers, defaultDecisionSec,
     onResult?.({ ...r, explanation: explainOutcome(r.baseline, r.branch, r.comparison, r.label, r.atSec) })
     ph.seek(Math.max(0, r.atSec - 15))
     ph.play()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [r])
 
   const explanation = useMemo(() => (r ? explainOutcome(r.baseline, r.branch, r.comparison, r.label, r.atSec) : ''), [r])

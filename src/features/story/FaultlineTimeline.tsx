@@ -38,7 +38,7 @@ function strokeFor(rate: number, base: string) {
  * decision point, an alternative branch computed by the simulator. One
  * playhead scrubs both paths.
  */
-export function FaultlineTimeline({ durationSec, baseline, branch, decisionSec, branchLabel, t, onSeek, onDecision, markers = [], className, compact }: Props) {
+export function FaultlineTimeline({ durationSec, baseline, branch, decisionSec, t, onSeek, onDecision, markers = [], className, compact }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [w, setW] = useState(720)
   const uid = useId().replace(/:/g, '')
@@ -176,21 +176,28 @@ export function FaultlineTimeline({ durationSec, baseline, branch, decisionSec, 
           ) : null}
 
           {/* Story markers */}
-          {shownMarkers.map((m, i) => {
-            const mx = x(m.atSec)
-            const above = i % 2 === 0
-            const color = m.kind === 'response' || m.kind === 'recovery' ? 'var(--color-healthy)' : m.kind === 'impact' ? 'var(--color-fault)' : 'var(--color-foreground)'
-            return (
-              <g key={`${m.atSec}-${i}`}>
-                <rect x={mx - 4} y={yA - 4} width={8} height={8} transform={`rotate(45 ${mx} ${yA})`} fill="var(--color-background)" stroke={color} strokeWidth={2} />
-                {!compact ? (
-                  <text x={mx} y={above ? yA - amp - 14 : yA + 22} textAnchor="middle" fontSize={11} fill="var(--color-muted-foreground)">
-                    {m.label.length > 26 ? `${m.label.slice(0, 25)}…` : m.label}
-                  </text>
-                ) : null}
-              </g>
-            )
-          })}
+          {(() => {
+            // Greedy two-row label placement: a label takes the first row with
+            // room; otherwise it is omitted (the marker keeps a tooltip).
+            const rowEnd = [-Infinity, -Infinity]
+            return shownMarkers.map((m, i) => {
+              const mx = x(m.atSec)
+              const color = m.kind === 'response' || m.kind === 'recovery' ? 'var(--color-healthy)' : m.kind === 'impact' ? 'var(--color-fault)' : 'var(--color-foreground)'
+              const text = m.label.length > 24 ? `${m.label.slice(0, 23).trimEnd()}…` : m.label
+              const half = (text.length * 5.9) / 2
+              let row = -1
+              if (!compact) for (const r of [0, 1]) if (mx - half > rowEnd[r] + 8) { row = r; rowEnd[r] = mx + half; break }
+              return (
+                <g key={`${m.atSec}-${i}`}>
+                  <title>{m.label}</title>
+                  <rect x={mx - 4} y={yA - 4} width={8} height={8} transform={`rotate(45 ${mx} ${yA})`} fill="var(--color-background)" stroke={color} strokeWidth={2} />
+                  {row >= 0 ? (
+                    <text x={Math.max(padL + half, Math.min(w - padR - half, mx))} y={row === 0 ? yA - amp - 14 : yA + 22} textAnchor="middle" fontSize={11} fill="var(--color-muted-foreground)">{text}</text>
+                  ) : null}
+                </g>
+              )
+            })
+          })()}
 
           {/* Decision point */}
           {dSec !== null && (hasBranch || onDecision) ? (
@@ -205,9 +212,6 @@ export function FaultlineTimeline({ durationSec, baseline, branch, decisionSec, 
           <circle cx={x(t)} cy={yA} r={4.5} fill="var(--color-foreground)" />
           {hasBranch && dSec !== null && t >= dSec ? <circle cx={x(t)} cy={yB} r={4.5} fill="var(--color-sim)" /> : null}
         </svg>
-        {branchLabel && hasBranch && !narrow ? (
-          <span className="pointer-events-none absolute left-0 top-[--top] max-w-[108px] text-[11px] leading-tight text-muted-foreground" style={{ ['--top' as string]: `${yB + 10}px` }}>{branchLabel}</span>
-        ) : null}
       </div>
     </div>
   )

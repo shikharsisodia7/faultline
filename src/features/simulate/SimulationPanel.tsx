@@ -11,6 +11,8 @@ import { runBranch, runScenario } from '../engine/client'
 import type { SavedSimulation } from '../workspace/adapter'
 import { InterventionEditor, defaultIntervention } from './InterventionEditor'
 import { SeriesChart } from './SeriesChart'
+import { FaultlineTimeline } from '../story/FaultlineTimeline'
+import { usePlayhead } from '../story/useWhatIf'
 
 export interface SimulationPanelProps {
   scenario: SimScenario
@@ -46,6 +48,7 @@ export function SimulationPanel(p: SimulationPanelProps) {
   const [queueService, setQueueService] = useState<string>(() => scenario.model.services.find((s) => s.kind === 'database')?.id ?? scenario.model.services[0].id)
   const [saving, setSaving] = useState(false)
   const { success, error: toastError } = useToast()
+  const ph = usePlayhead(scenario.durationSec, { speed: Math.max(20, scenario.durationSec / 20) })
 
   useEffect(() => {
     if (p.baseline) setBaseline(p.baseline)
@@ -174,6 +177,11 @@ export function SimulationPanel(p: SimulationPanelProps) {
               {result!.comparison.prefixIdentical ? <Check className="size-3.5 text-[var(--color-healthy)]" /> : <AlertTriangle className="size-3.5 text-[var(--color-degraded)]" />}
               {result!.comparison.prefixIdentical ? `Verified: both runs are identical before T+${p.branchAtSec}s.` : 'Warning: the runs differ before the branch point.'}
             </p>
+
+            <div className="rounded-xl border border-border bg-card p-4">
+              <FaultlineTimeline durationSec={scenario.durationSec} baseline={b.samples} branch={r.samples} decisionSec={p.branchAtSec} t={ph.t} onSeek={ph.seek} />
+              <button type="button" onClick={ph.playing ? ph.pause : ph.replay} className="mt-2 text-[12.5px] text-muted-foreground hover:text-foreground">{ph.playing ? 'Pause' : 'Replay both timelines'}</button>
+            </div>
 
             <div className="grid gap-4 xl:grid-cols-2">
               <SeriesChart

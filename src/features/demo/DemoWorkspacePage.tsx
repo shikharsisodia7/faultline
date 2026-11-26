@@ -51,7 +51,7 @@ function DemoViews({ slug, dataset, run, headerRight }: { slug: string; dataset:
         scenario={demo.scenario}
         scenarioOrigin={demo.baseTime}
         baseline={run}
-        suggestedBranchSec={demo.suggested.atSec}
+        suggestedBranchSec={tab === 'simulate' && params.get('t') ? tSec : demo.suggested.atSec}
         suggestedInterventions={SUGGESTED[slug]}
         modelAssumptions={[]}
         initialT={demo.baseTime + tSec * 1000}

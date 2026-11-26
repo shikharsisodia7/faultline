@@ -13,6 +13,7 @@ export function friendlyName(id: string, labels?: Record<string, { name: string 
 }
 
 export function pctText(x: number): string {
+  if (x === 0) return '0%'
   if (x > 0 && x < 0.001) return 'under 0.1%'
   return `${(x * 100).toFixed(x < 0.1 ? 1 : 0)}%`
 }

@@ -32,7 +32,7 @@ export function GuidedDemo({ demo, analysis, baseline, initialT = 0, onEngineeri
   const ph = usePlayhead(demo.scenario.durationSec, { speed: Math.max(18, demo.scenario.durationSec / 24) })
   useEffect(() => {
     if (initialT) ph.seek(initialT)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [])
 
   const markers = demo.plain.story.map((b) => ({ atSec: b.atSec, label: b.text.split(/[.:,]/)[0], kind: b.kind }))
@@ -212,7 +212,7 @@ function WhyItHappened({ demo, analysis, parts, calls, onNext, onBack, onEnginee
             The trouble appears to have started in <strong className="font-medium">{friendlyName(top.service)}</strong>.
             {topEvent.type === 'deploy' || topEvent.type === 'config_change' ? ' A change was made there shortly before customers were affected.' : ' It struggled before anything else did.'}
           </p>
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_minmax(0,380px)]">
+          <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_minmax(0,380px)] lg:items-start">
             <div className="fl-frame">
               <div className="fl-frame-inner bg-card p-5 sm:p-6">
                 <SystemDiagram parts={parts.map((p) => ({ ...p, detail: p.id === top.service ? 'Likely starting point' : affected.has(p.id) ? 'Affected' : 'Not affected' }))} calls={calls} status={status} highlight={top.service} dense={parts.length > 4} />
@@ -280,7 +280,7 @@ function CompareOutcomes({ demo, outcome, markers, onTryAnother, onEngineering }
   useEffect(() => {
     ph.seek(Math.max(0, outcome.atSec - 20))
     ph.play()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [outcome])
   const verdict = outcome.comparison.overall
   return (
