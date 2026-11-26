@@ -26,5 +26,9 @@ export const integrations: Record<
 > = {
   google: { billing: 'user' },
   composio: { billing: 'user' },
-  // openai: { billing: 'developer', anonymous: true },
+  // Faultline: owner-billed, signed-in only, and additionally gated by the
+  // FAULTLINE_INTEGRATIONS secret and per-user daily limits (src/server/integrations.ts).
+  anthropic: { billing: 'developer' },
+  github: { billing: 'developer' },
+  exa: { billing: 'developer' },
 }

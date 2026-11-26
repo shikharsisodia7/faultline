@@ -1,17 +1,10 @@
 /**
- * Collection Schemas
- *
- * All collections with columns and RBAC permissions.
- * Single source of truth — imported by both worker and frontend.
- *
- * Add schemas by creating a file in src/schemas/ and importing it here.
+ * Collection schemas: single source of truth for worker and frontend.
+ * Faultline's own collections and their access model live in
+ * src/schemas/faultline-schemas.ts (see docs/DATA-MODEL.md).
  */
-
 import type { CollectionSchema } from 'deepspace/schema'
 import { usersSchema } from './schemas/users-schema'
-import { settingsSchema } from './schemas/admin-schema'
+import { faultlineSchemas } from './schemas/faultline-schemas'
 
-export const schemas: CollectionSchema[] = [
-  usersSchema,
-  settingsSchema,
-]
+export const schemas: CollectionSchema[] = [usersSchema, ...faultlineSchemas]

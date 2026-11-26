@@ -14,7 +14,6 @@ import {
   JobRoom,
   PresenceRoom,
   RecordRoom,
-  resolveAppRole,
   workerErrorHandler,
   YjsRoom,
 } from 'deepspace/worker'
@@ -69,11 +68,16 @@ export class AppCronRoom extends CronRoom<Env> {
 export class AppJobRoom extends JobRoom<Env> {
   constructor(state: DurableObjectState, env: Env) {
     super(state, env, {
-      authorizeWrite: async (user) => {
-        if (user.userId.startsWith('anon-')) return false
-        const role = await resolveAppRole(env, user.userId)
-        return role === 'member' || role === 'admin'
-      },
+      // Browsers never enqueue, cancel, or retry over the socket. Every job is
+      // created by an authorized server action (src/actions) through
+      // enqueueJob, and cancellation is cooperative via the ingestion_jobs
+      // record. Closing socket writes removes a path around workspace checks.
+      authorizeWrite: async () => false,
+      // Nobody observes the raw queue either; progress is read from the
+      // team-scoped ingestion_jobs records instead.
+      authorizeRead: async () => false,
+      defaultMaxAttempts: 2,
+      retryBackoffMs: 5_000,
     })
   }
 
@@ -118,6 +122,8 @@ export interface Env extends DOBindings<typeof __DO_MANIFEST__> {
    * an authenticated app owner/admin. deepspace dev/test set it locally.
    */
   ALLOW_DEBUG_ROUTES?: string
+  /** Set to "enabled" (deepspace secrets) to allow owner-billed integrations. Off by default. */
+  FAULTLINE_INTEGRATIONS?: string
 }
 
 export type AppContext = { Bindings: Env }
