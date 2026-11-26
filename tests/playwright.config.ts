@@ -20,6 +20,8 @@ const BASE_URL = `http://127.0.0.1:${PORT}`
 export default defineConfig({
   testDir: '.',
   testMatch: '**/*.spec.ts',
+  // The standalone usability suite has its own config (tests/standalone).
+  testIgnore: ['standalone/**'],
   timeout: 30_000,
   retries: 0,
   use: {

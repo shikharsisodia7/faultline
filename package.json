@@ -30,7 +30,9 @@
     "test:engine": "vitest run --root packages/engine",
     "typecheck:engine": "tsc -p packages/engine/tsconfig.json",
     "build:vercel": "vite build --config vite.vercel.config.ts",
-    "dev:standalone": "vite --config vite.vercel.config.ts"
+    "dev:standalone": "vite --config vite.vercel.config.ts",
+    "preview:standalone": "vite preview --config vite.vercel.config.ts --port 4173 --strictPort --host 127.0.0.1",
+    "test:usability": "playwright test -c tests/standalone/playwright.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "~1.6.0",

@@ -28,6 +28,7 @@ const VIEWPORTS = [
 ]
 const PAGES = [
   { name: 'landing', path: '/', wait: 2500 },
+  { name: 'examples', path: '/demo', wait: 1500 },
   { name: 'guided-what-happened', path: '/demo/checkout-cascade', wait: 7000 },
   { name: 'engineering', path: '/demo/checkout-cascade?mode=engineering&tab=investigate&t=200', wait: 7000 },
   { name: 'lab', path: '/lab', wait: 2000 },

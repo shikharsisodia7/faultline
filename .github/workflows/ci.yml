@@ -44,5 +44,40 @@ jobs:
       - name: Standalone production build
         run: npm run build:vercel
 
+  usability:
+    # Drives the standalone build of this commit (not production) through the
+    # paths a first-time visitor takes: tests/standalone/usability.spec.ts.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: check
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run build:vercel
+
+      - name: Usability acceptance tests
+        run: |
+          npm run preview:standalone > preview.log 2>&1 &
+          npx --yes wait-on@8.0.3 -t 60000 http-get://127.0.0.1:4173/
+          npm run test:usability
+        env:
+          FAULTLINE_URL: http://127.0.0.1:4173
+
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: usability-traces
+          path: test-results/
+          retention-days: 7
+
   # DeepSpace smoke/api/collab suites need an authenticated DeepSpace session
   # and a registered app, so they run locally (`npm test`), not in CI.
