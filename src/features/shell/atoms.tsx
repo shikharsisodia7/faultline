@@ -57,7 +57,7 @@ export function Kbd({ children }: { children: ReactNode }) {
 export function SectionLabel({ children, className, right }: { children: ReactNode; className?: string; right?: ReactNode }) {
   return (
     <div className={cn('flex items-center justify-between gap-2 px-3 pb-1.5 pt-3', className)}>
-      <h3 className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">{children}</h3>
+      <h2 className="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">{children}</h2>
       {right}
     </div>
   )

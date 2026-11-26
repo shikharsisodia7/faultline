@@ -48,7 +48,7 @@ export function DocsPage({ slug }: { slug?: string }) {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-8 px-4 py-8 md:grid-cols-[220px_minmax(0,1fr)]">
+      <main className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-8 px-4 py-8 md:grid-cols-[220px_minmax(0,1fr)]">
         <nav aria-label="Documentation" className="md:sticky md:top-20 md:self-start">
           <p className="mb-2 font-mono text-[10.5px] uppercase tracking-[0.1em] text-muted-foreground">Documentation</p>
           <ul className="flex gap-1 overflow-x-auto md:flex-col">
@@ -66,7 +66,7 @@ export function DocsPage({ slug }: { slug?: string }) {
           {unknown ? <p className="mb-4 rounded-md border border-border px-3 py-2 text-[13px] text-muted-foreground">No page called “{slug}”. Showing the architecture overview. <Link to="/docs" className="underline">Docs home</Link></p> : null}
           <Markdown source={doc.source} resolve={resolve} />
         </article>
-      </div>
+      </main>
       <SiteFooter />
     </div>
   )

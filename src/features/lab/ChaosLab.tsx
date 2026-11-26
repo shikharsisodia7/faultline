@@ -354,7 +354,7 @@ export function ChaosLab({ store }: { store: LabStore }) {
 
         {store.scenarios.length ? (
           <div className="border-t border-border p-4">
-            <h3 className="mb-2 font-mono text-[10.5px] uppercase tracking-wide text-muted-foreground">Saved scenarios</h3>
+            <h2 className="mb-2 font-mono text-[10.5px] uppercase tracking-wide text-muted-foreground">Saved scenarios</h2>
             <ul className="space-y-1">
               {store.scenarios.map((s) => (
                 <li key={s.id} className={cn('flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5 text-[12.5px]', s.id === savedId && 'border-foreground/40')}>
@@ -378,7 +378,7 @@ function SimpleLab({ templateSlug, onTemplate, scenario, onEvent, onClearEvents 
     <div className="space-y-6 p-4">
       {(['system', 'drill'] as const).map((group) => (
         <div key={group}>
-          <h3 className="text-[12.5px] text-muted-foreground">{group === 'system' ? 'Systems you know' : 'Failure drills'}</h3>
+          <h2 className="text-[12.5px] text-muted-foreground">{group === 'system' ? 'Systems you know' : 'Failure drills'}</h2>
           <div className="mt-2 grid grid-cols-2 gap-2">
             {LAB_GUIDES.filter((g) => g.group === group).map((g) => (
               <button key={g.slug} type="button" aria-pressed={g.slug === templateSlug} onClick={() => onTemplate(g.slug)} className={cn('rounded-xl border px-3 py-2.5 text-left text-[14px] transition-colors', g.slug === templateSlug ? 'border-foreground/60 bg-white text-foreground' : 'border-border text-foreground/80 hover:border-foreground/30')}>
@@ -397,7 +397,7 @@ function SimpleLab({ templateSlug, onTemplate, scenario, onEvent, onClearEvents 
         </dl>
       ) : null}
       <div>
-        <h3 className="text-[12.5px] text-muted-foreground">Make something happen</h3>
+        <h2 className="text-[12.5px] text-muted-foreground">Make something happen</h2>
         <div className="mt-2 flex flex-wrap gap-2">
           {LAB_EVENTS.map((e) => {
             const changes = eventChanges(e.id, scenario)

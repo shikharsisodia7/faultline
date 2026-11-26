@@ -51,7 +51,7 @@ function Problem() {
               <li
                 key={f.kind}
                 className="relative grid grid-cols-[46px_18px_1fr] items-center gap-3 transition-all duration-700 ease-[var(--ease-out-soft)]"
-                style={{ transitionDelay: `${i * 90}ms`, transform: seen ? 'none' : `translate(${(i % 2 ? 1 : -1) * (24 + i * 10)}px, ${(i - 2) * 6}px) rotate(${(i % 2 ? 1.5 : -1.5)}deg)`, opacity: seen ? 1 : 0.55 }}
+                style={{ transitionDelay: `${i * 90}ms`, transform: seen ? 'none' : `translate(${(i % 2 ? 1 : -1) * (24 + i * 10)}px, ${(i - 2) * 6}px) rotate(${(i % 2 ? 1.5 : -1.5)}deg)` }}
               >
                 <span className="text-right font-mono text-[12px] tabular text-muted-foreground">{f.at}</span>
                 <span className="relative z-10 mx-auto size-2.5 rounded-full border-2 border-background" style={{ background: i < 2 ? 'var(--color-degraded)' : i === 4 ? 'var(--color-foreground)' : 'var(--color-fault)' }} />
@@ -127,13 +127,16 @@ function HowItWorks() {
         <p className="fl-eyebrow">How it works</p>
         <h2 id="how-title" className="mt-4 max-w-2xl text-[34px] font-normal leading-[1.1] text-foreground sm:text-[42px]">Three questions, answered in order.</h2>
         <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <ol className="space-y-1" role="tablist" aria-label="How Faultline works">
+          <ol className="space-y-1" role="tablist" aria-label="How Faultline works" aria-orientation="vertical" onKeyDown={(e) => onTabKeys(e, STEPS.length, active, setActive)}>
             {STEPS.map((s, i) => (
-              <li key={s.n}>
+              <li key={s.n} role="presentation">
                 <button
                   type="button"
                   role="tab"
+                  id={`how-tab-${i}`}
+                  aria-controls="how-panel"
                   aria-selected={active === i}
+                  tabIndex={active === i ? 0 : -1}
                   onClick={() => setActive(i)}
                   onMouseEnter={() => setActive(i)}
                   className={cn('block w-full border-l-2 py-4 pl-5 pr-2 text-left transition-colors', active === i ? 'border-foreground' : 'border-border hover:border-foreground/40')}
@@ -149,7 +152,7 @@ function HowItWorks() {
               </li>
             ))}
           </ol>
-          <div className="fl-frame" role="tabpanel" aria-label={STEPS[active].title}>
+          <div className="fl-frame" role="tabpanel" id="how-panel" aria-labelledby={`how-tab-${active}`}>
             <div className="fl-frame-inner"><StepArt step={active} /></div>
           </div>
         </div>
@@ -174,14 +177,14 @@ function UseCases() {
         <p className="fl-eyebrow">Use cases</p>
         <h2 id="uses" className="mt-4 max-w-2xl text-[34px] font-normal leading-[1.1] text-foreground sm:text-[42px]">Built for whoever has to explain the outage.</h2>
         <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-8 md:grid-cols-[260px_minmax(0,1fr)]">
-          <div className="flex gap-1 overflow-x-auto md:flex-col" role="tablist" aria-label="Who uses Faultline">
+          <div className="flex gap-1 overflow-x-auto md:flex-col" role="tablist" aria-label="Who uses Faultline" onKeyDown={(e) => onTabKeys(e, USES.length, i, setI)}>
             {USES.map((u, k) => (
-              <button key={u.who} type="button" role="tab" aria-selected={i === k} onClick={() => setI(k)} className={cn('shrink-0 rounded-lg px-3 py-2.5 text-left text-[15px] transition-colors', i === k ? 'bg-white text-foreground shadow-[0_0_0_1px_rgba(31,29,26,0.08)]' : 'text-muted-foreground hover:text-foreground')}>
+              <button key={u.who} type="button" role="tab" id={`use-tab-${k}`} aria-controls="use-panel" aria-selected={i === k} tabIndex={i === k ? 0 : -1} onClick={() => setI(k)} className={cn('shrink-0 rounded-lg px-3 py-2.5 text-left text-[15px] transition-colors', i === k ? 'bg-white text-foreground shadow-[0_0_0_1px_rgba(31,29,26,0.08)]' : 'text-muted-foreground hover:text-foreground')}>
                 {u.who}
               </button>
             ))}
           </div>
-          <div role="tabpanel" className="rounded-2xl border border-border bg-white p-7 sm:p-9">
+          <div role="tabpanel" id="use-panel" aria-labelledby={`use-tab-${i}`} className="rounded-2xl border border-border bg-white p-7 sm:p-9">
             <p className="text-[24px] font-normal leading-snug text-foreground sm:text-[28px]">{USES[i].what}</p>
             <Link to={i === 0 ? '/demo/checkout-cascade?mode=engineering' : i === 3 ? '/lab' : '/demo/checkout-cascade'} className="mt-6 inline-flex items-center gap-1.5 text-[14.5px] font-medium text-[var(--color-primary)] hover:underline">
               {i === 0 ? 'Open the engineering view' : i === 3 ? 'Open the experiment lab' : 'Walk through the demo'} <ArrowRight className="size-4" />
@@ -212,8 +215,10 @@ function Engineered() {
           {TECH.map((x) => (
             <div key={x.t} className="bg-[#1f1d1a] p-6">
               <dt className="text-[16px] font-medium">{x.t}</dt>
-              <dd className="mt-2 text-[14px] leading-relaxed text-[#c9c2b8]">{x.d}</dd>
-              <Link to={x.doc} className="mt-4 inline-flex items-center gap-1 text-[13px] text-[#f0a48f] hover:underline">How it works <ArrowUpRight className="size-3.5" /></Link>
+              <dd className="mt-2 text-[14px] leading-relaxed text-[#c9c2b8]">
+                {x.d}
+                <Link to={x.doc} className="mt-4 flex w-fit items-center gap-1 text-[13px] text-[#f0a48f] hover:underline">How it works<span className="sr-only">: {x.t}</span> <ArrowUpRight className="size-3.5" /></Link>
+              </dd>
             </div>
           ))}
         </dl>
@@ -304,4 +309,15 @@ export function Landing() {
       <MarketingFooter />
     </div>
   )
+}
+
+/** Arrow / Home / End keys for a tablist (WAI-ARIA tabs pattern, automatic activation). */
+function onTabKeys(e: React.KeyboardEvent<HTMLElement>, count: number, current: number, set: (i: number) => void) {
+  const next = { ArrowDown: current + 1, ArrowRight: current + 1, ArrowUp: current - 1, ArrowLeft: current - 1, Home: 0, End: count - 1 }[e.key]
+  if (next === undefined) return
+  e.preventDefault()
+  const i = (next + count) % count
+  set(i)
+  const tabs = e.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]')
+  tabs[i]?.focus()
 }

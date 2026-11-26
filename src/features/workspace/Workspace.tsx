@@ -195,8 +195,10 @@ export function Workspace(props: WorkspaceProps) {
   const topology = <TopologyView graph={graph} state={ctl.state} events={dataset.events} selectedService={selectedService} onSelectService={setSelectedService} focusService={selectedEvent?.service ?? null} />
   const inspector = <InspectorPanel analysis={analysis} event={selectedEvent} adapter={adapter} state={ctl.state} onSelectEvent={selectEvent} onSelectService={(id) => setSelectedService(id)} />
 
+  // Embedded inside the DeepSpace layout, which already provides <main>.
+  const Root = props.embedded ? 'div' : 'main'
   return (
-    <div className={cn('flex min-h-0 flex-col bg-background', props.embedded ? 'h-full' : 'h-dvh')}>
+    <Root className={cn('flex min-h-0 flex-col bg-background', props.embedded ? 'h-full' : 'h-dvh')}>
       <header className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-1.5">
         {props.headerLeft}
         <div className="flex min-w-0 items-center gap-2">
@@ -283,6 +285,6 @@ export function Workspace(props: WorkspaceProps) {
       ) : null}
 
       {props.tour ? <GuidedTour steps={tourSteps} /> : null}
-    </div>
+    </Root>
   )
 }

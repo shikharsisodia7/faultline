@@ -60,18 +60,18 @@
   --color-info-foreground: #ffffff;
 
   /* Semantic system states (shared by both modes) */
-  --color-fault: #c4452b;
+  --color-fault: #b53c23;
   --color-fault-muted: #f6e3dc;
-  --color-healthy: #2e7d5b;
+  --color-healthy: #2b7654;
   --color-healthy-muted: #e1eee6;
   --color-degraded: #9a5b0b;
   --color-degraded-muted: #f5e9d2;
   --color-recovering: #5f7690;
   --color-sim: #36598a;
   --color-sim-muted: #e2e9f2;
-  --color-inferred: #7a746a;
+  --color-inferred: #6e685f;
   --color-grid: #ebe6de;
-  --color-faint: #9a948a;
+  --color-faint: #716c63;
 
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
@@ -120,7 +120,7 @@
   --color-sim-muted: #13293a;
   --color-inferred: #b9bfc8;
   --color-grid: #1a1d22;
-  --color-faint: #5c636d;
+  --color-faint: #7d8590;
 }
 
 /* Theme override blocks live in `themes.css` — imported above. */
