@@ -19,6 +19,10 @@ When software fails, the evidence is scattered: an error in one log, a deploy no
 3. **What if?** Pick a moment and a different decision (roll back the update, add database capacity, retry less, rate limit, isolate a dependency, change a timeout). A deterministic simulator replays the incident from that point.
 4. **Compare outcomes.** See the original and the alternative side by side: failed requests, success rate, recovery time. A decision that would have made things worse is shown as worse.
 
+![Recording of the guided demo: replaying the checkout outage, finding the likely starting point, undoing the update at 3:20, and comparing outcomes](docs/demo.gif)
+
+*Recorded from the live demo (sped up 1.4×). Every number comes from the simulator running in the browser.*
+
 | Guided demo | Engineering mode |
 | --- | --- |
 | ![Guided demo, step 1: what happened](docs/screenshots/guided-what-happened-1440.png) | ![Engineering workspace with dependency graph and timeline](docs/screenshots/engineering-1440.png) |

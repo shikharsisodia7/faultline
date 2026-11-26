@@ -17,7 +17,8 @@ Nothing yet.
 - Experiment lab simple mode: familiar systems and failure drills with plain-language guides and one-click events. The full editor moved under Advanced settings. New banking template.
 - `set_timeout` intervention ("Change timeout"), with tests.
 - Privacy, Security and About pages in the in-app docs.
-- Screenshot script for the QA viewports (`scripts/screenshots.mjs`).
+- Screenshot, preview-image and demo-recording scripts (`scripts/screenshots.mjs`, `render-og.mjs`, `record-demo.mjs`), all run through the Playwright relay.
+- Demo GIF in the README, recorded from the live site.
 
 ### Changed
 - Light-first visual design and new brand mark. The previous dark theme is kept as an alternative.
