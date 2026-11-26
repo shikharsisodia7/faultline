@@ -44,7 +44,7 @@ function Problem() {
             The clues are scattered: an error in one place, a release note in another, an alert, a pile of failed payments, a message in the team chat. Faultline puts them in order, on one timeline, so the story becomes visible.
           </p>
         </div>
-        <div ref={ref} className="relative">
+        <div ref={ref} className="relative overflow-x-clip">
           <ol className="relative space-y-2.5">
             <span aria-hidden="true" className={cn('absolute left-[54px] top-3 bottom-3 w-px bg-foreground/20 transition-opacity duration-700', seen ? 'opacity-100' : 'opacity-0')} />
             {FRAGMENTS.map((f, i) => (
@@ -173,7 +173,7 @@ function UseCases() {
       <div className="mx-auto max-w-6xl px-5 py-24">
         <p className="fl-eyebrow">Use cases</p>
         <h2 id="uses" className="mt-4 max-w-2xl text-[34px] font-normal leading-[1.1] text-foreground sm:text-[42px]">Built for whoever has to explain the outage.</h2>
-        <div className="mt-10 grid gap-8 md:grid-cols-[260px_1fr]">
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-8 md:grid-cols-[260px_minmax(0,1fr)]">
           <div className="flex gap-1 overflow-x-auto md:flex-col" role="tablist" aria-label="Who uses Faultline">
             {USES.map((u, k) => (
               <button key={u.who} type="button" role="tab" aria-selected={i === k} onClick={() => setI(k)} className={cn('shrink-0 rounded-lg px-3 py-2.5 text-left text-[15px] transition-colors', i === k ? 'bg-white text-foreground shadow-[0_0_0_1px_rgba(31,29,26,0.08)]' : 'text-muted-foreground hover:text-foreground')}>

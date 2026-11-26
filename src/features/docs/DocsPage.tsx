@@ -13,6 +13,9 @@ import dataModel from '../../../docs/DATA-MODEL.md?raw'
 import deployment from '../../../docs/DEPLOYMENT.md?raw'
 import testing from '../../../docs/TESTING.md?raw'
 import tradeoffs from '../../../docs/TRADEOFFS.md?raw'
+import privacy from '../../../docs/PRIVACY.md?raw'
+import security from '../../../SECURITY.md?raw'
+import project from '../../../docs/PROJECT.md?raw'
 
 export const DOCS = [
   { slug: 'architecture', title: 'Architecture', file: 'ARCHITECTURE.md', source: architecture },
@@ -24,6 +27,9 @@ export const DOCS = [
   { slug: 'deployment', title: 'Deployment', file: 'DEPLOYMENT.md', source: deployment },
   { slug: 'testing', title: 'Testing', file: 'TESTING.md', source: testing },
   { slug: 'tradeoffs', title: 'Tradeoffs & limitations', file: 'TRADEOFFS.md', source: tradeoffs },
+  { slug: 'privacy', title: 'Privacy', file: 'PRIVACY.md', source: privacy },
+  { slug: 'security', title: 'Security', file: '../SECURITY.md', source: security },
+  { slug: 'project', title: 'About this project', file: 'PROJECT.md', source: project },
 ] as const
 
 const byFile = new Map<string, string>(DOCS.map((d) => [d.file, d.slug]))
@@ -42,7 +48,7 @@ export function DocsPage({ slug }: { slug?: string }) {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[220px_1fr]">
+      <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-8 px-4 py-8 md:grid-cols-[220px_minmax(0,1fr)]">
         <nav aria-label="Documentation" className="md:sticky md:top-20 md:self-start">
           <p className="mb-2 font-mono text-[10.5px] uppercase tracking-[0.1em] text-muted-foreground">Documentation</p>
           <ul className="flex gap-1 overflow-x-auto md:flex-col">
@@ -54,7 +60,7 @@ export function DocsPage({ slug }: { slug?: string }) {
               </li>
             ))}
           </ul>
-          <a href={`${REPO_URL}/blob/main/docs/${doc.file}`} className="mt-4 hidden text-[12px] text-muted-foreground hover:text-foreground md:block" target="_blank" rel="noreferrer">View source on GitHub</a>
+          <a href={`${REPO_URL}/blob/main/${doc.file.startsWith('../') ? doc.file.slice(3) : `docs/${doc.file}`}`} className="mt-4 hidden text-[12px] text-muted-foreground hover:text-foreground md:block" target="_blank" rel="noreferrer">View source on GitHub</a>
         </nav>
         <article className="min-w-0 max-w-3xl text-[14px]">
           {unknown ? <p className="mb-4 rounded-md border border-border px-3 py-2 text-[13px] text-muted-foreground">No page called “{slug}”. Showing the architecture overview. <Link to="/docs" className="underline">Docs home</Link></p> : null}
