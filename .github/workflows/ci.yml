@@ -30,7 +30,7 @@ jobs:
         run: npm run test:engine
 
       - name: Server and schema tests
-        run: npx vitest run src/lib src/server src/schemas --config packages/engine/vitest.config.ts --root .
+        run: npx vitest run src/lib src/server src/schemas
 
       - name: Type check (engine)
         run: npm run typecheck:engine

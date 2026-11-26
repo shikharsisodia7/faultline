@@ -24,7 +24,7 @@ npm run build:vercel
 All of these run in CI. Server and schema tests:
 
 ```sh
-npx vitest run src/server src/schemas --config packages/engine/vitest.config.ts --root .
+npx vitest run src/lib src/server src/schemas
 ```
 
 ## Ground rules

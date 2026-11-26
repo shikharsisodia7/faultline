@@ -80,7 +80,7 @@ npm run typecheck:engine
 npm run type-check         # whole app
 npm run lint
 npm run build:vercel       # standalone production build
-npx vitest run src/server src/schemas --config packages/engine/vitest.config.ts --root .   # server + schema tests (13)
+npx vitest run src/lib src/server src/schemas   # server + schema tests (13)
 npm run test:usability     # usability acceptance tests (11) against the live demo; set FAULTLINE_URL to test another build
 npm test                   # DeepSpace smoke/api/collab suites (needs DeepSpace login)
 ```

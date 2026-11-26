@@ -28,8 +28,10 @@ async function displayName(tools: ActionTools, userId: string): Promise<string> 
 }
 
 async function newWorkspace(tools: ActionTools, userId: string, name: string, kind: 'personal' | 'team'): Promise<string> {
-  const id = await createRecord(tools, 'workspaces', { workspaceId: 'pending', name, ownerId: userId, kind })
-  await updateRecord(tools, 'workspaces', id, { workspaceId: id })
+  // A workspace is its own team: its immutable team field must equal its record
+  // id from the start, so choose the id before creating (never patch it later).
+  const id = `ws_${crypto.randomUUID()}`
+  await createRecord(tools, 'workspaces', { workspaceId: id, name, ownerId: userId, kind }, id)
   await createRecord(tools, 'team_members', { teamId: id, userId, role: 'owner', status: 'active', displayName: await displayName(tools, userId), invitedBy: userId })
   await audit(tools, id, userId, 'workspace.created', id, { name, kind })
   return id
@@ -49,6 +51,11 @@ export const actions: Record<string, Handler> = {
   /** Returns the caller's personal workspace, creating it on first use. */
   ensureWorkspace: async ({ userId, tools }) => {
     try {
+      // Remove half-created workspaces an earlier version left behind (team
+      // field stuck at 'pending', no members, invisible). Only the caller's own.
+      for (const orphan of await queryAll(tools, 'workspaces', { ownerId: userId, workspaceId: 'pending' }, 50)) {
+        await tools.remove('workspaces', orphan.recordId)
+      }
       const memberships = await queryAll<{ teamId: string; role: WorkspaceRole; status: string }>(tools, 'team_members', { userId }, 200)
       const active = memberships.filter((m) => m.data.status !== 'removed')
       for (const m of active) {
