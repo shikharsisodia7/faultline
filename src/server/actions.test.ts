@@ -87,3 +87,52 @@ describe('workspace creation against immutable schema columns', () => {
     expect(ids).toContain('orphan_b')
   })
 })
+
+describe('workspace roles enforced by the real action code', () => {
+  async function setup() {
+    const { tools, rows } = fakeTools()
+    // Users exist in the app's user directory (setMember requires it).
+    for (const u of ['owner', 'collab', 'outsider']) await tools.create('users', { name: u }, u)
+    const ws = (await actions.createWorkspace(ctx(tools, 'owner', { name: 'Payments' }))) as { data: { workspaceId: string } }
+    const workspaceId = ws.data.workspaceId
+    const inc = (await actions.createIncident(ctx(tools, 'owner', { workspaceId, title: 'Checkout errors' }))) as { success: boolean; data: { incidentId: string } }
+    expect(inc.success).toBe(true)
+    return { tools, rows, workspaceId, incidentId: inc.data.incidentId }
+  }
+  const call = (tools: ActionTools, who: string, name: keyof typeof actions, params: Record<string, unknown>) =>
+    actions[name](ctx(tools, who, params)) as Promise<{ success: boolean; code?: string; data?: Record<string, unknown> }>
+
+  it('an unrelated user can neither see nor change anything', async () => {
+    const { tools, workspaceId, incidentId } = await setup()
+    expect((await call(tools, 'outsider', 'myRole', { workspaceId })).data?.role ?? null).toBeNull()
+    for (const [name, params] of [
+      ['createIncident', { workspaceId, title: 'x' }],
+      ['updateIncident', { incidentId, title: 'defaced' }],
+      ['addAnnotation', { incidentId, body: 'x' }],
+      ['startIngestion', { incidentId, sourceId: 'x' }],
+      ['deleteIncident', { incidentId }],
+      ['setMember', { workspaceId, userId: 'outsider', role: 'owner' }],
+    ] as const) {
+      const r = await call(tools, 'outsider', name, params)
+      expect(r.success, `${name} should be refused`).toBe(false)
+      // Outsiders get not_found for incidents, so they cannot even confirm one exists.
+      expect(['forbidden', 'not_found']).toContain(r.code)
+    }
+  })
+
+  it('a viewer can read but not write; a collaborator can write but not manage members; removal revokes', async () => {
+    const { tools, workspaceId, incidentId } = await setup()
+    expect((await call(tools, 'owner', 'setMember', { workspaceId, userId: 'collab', role: 'viewer' })).success).toBe(true)
+    expect((await call(tools, 'collab', 'myRole', { workspaceId })).data?.role).toBe('viewer')
+    expect((await call(tools, 'collab', 'addAnnotation', { incidentId, body: 'x' })).code).toBe('forbidden')
+
+    expect((await call(tools, 'owner', 'setMember', { workspaceId, userId: 'collab', role: 'collaborator' })).success).toBe(true)
+    expect((await call(tools, 'collab', 'addAnnotation', { incidentId, body: 'note' })).success).toBe(true)
+    expect((await call(tools, 'collab', 'setMember', { workspaceId, userId: 'outsider', role: 'viewer' })).success).toBe(false)
+
+    expect((await call(tools, 'owner', 'removeMember', { workspaceId, userId: 'collab' })).success).toBe(true)
+    const after = await call(tools, 'collab', 'addAnnotation', { incidentId, body: 'after removal' })
+    expect(after.success).toBe(false)
+    expect((await call(tools, 'collab', 'myRole', { workspaceId })).data?.role ?? null).toBeNull()
+  })
+})

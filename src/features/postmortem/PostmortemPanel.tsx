@@ -47,7 +47,7 @@ export function PostmortemPanel({ dataset, hypotheses, reviews, simulations, onS
             {pm.synthetic ? <KindTag kind="synthetic" /> : null}
             <span className="font-mono text-[11px] text-muted-foreground">{pm.version}</span>
           </div>
-          <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">Postmortem: {pm.title}</h1>
+          <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">Incident report: {pm.title}</h1>
           <p className="mt-2 text-muted-foreground">{pm.executiveSummary}</p>
         </header>
 

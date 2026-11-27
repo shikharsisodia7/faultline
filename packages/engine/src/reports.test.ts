@@ -57,6 +57,7 @@ describe('postmortem', () => {
     }
     expect(md).toContain('Synthetic incident')
     expect(md).toContain('not a probability')
+    expect(md.split(String.fromCharCode(10))[0]).toMatch(/^# Incident report: /)
   })
 
   it('is deterministic for a fixed generation time', () => {
