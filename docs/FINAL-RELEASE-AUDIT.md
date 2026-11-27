@@ -12,6 +12,13 @@ Date: 2026-11-26 (UTC-8). Auditor: the coding agent (Claude Code), working in th
 
 `faultline.vercel.app` belongs to another account, which is why Vercel assigned `faultline-coral`.
 
+## Final state (2026-11-27 04:25 UTC)
+
+- `main` at `fd5e304` (PR #1 merged after all checks, including the SonarCloud quality gate, passed). CI on `fd5e304`: 103 engine, 34 server/script and 11 browser tests passed; the deployment preflight passed on tracked source.
+- DeepSpace release `rel_01M8DKC7P8VB0R2FYBZV2DDMC0` from `main`, clean tree. Vercel production `dpl_6jD5V3rTVjpwmU2cxxJZfx25FZg2` built by the GitHub integration from `fd5e304`.
+- Final scans: Semgrep 0 findings, gitleaks no leaks in history, npm audit only the accepted dev-only esbuild advisory.
+- **Release gates still open:** (1) DeepSpace has not yet confirmed revocation of the exposed `APP_IDENTITY_TOKEN` / `APP_OWNER_JWT`s; (2) the three-account authorization suite has not run (0 test accounts exist; creating password accounts on DeepSpace's hosted sign-in is an owner action). v1.0.0 is therefore **not tagged**.
+
 ## DeepSpace authentication
 
 - The earlier failure (`Browser login needs an interactive terminal`) came from running `npx deepspace auth login` through Claude Code's `!` prefix, which is not a TTY. That `!` run also executed from the memory directory rather than the project, which is why npx downloaded `deepspace@0.44.2` instead of using the project's installed copy. The project's lockfile pins the same version, and it was not upgraded.
