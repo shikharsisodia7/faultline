@@ -6,7 +6,7 @@
  * deploy is needed. It exports HEAD with `git archive` into a temporary folder
  * OUTSIDE the repository (so local secrets such as .dev.vars are physically
  * absent, and the Vercel CLI cannot pick up a parent .vercel link), runs the
- * secret preflight on that folder, and only then deploys.
+ * secret preflight on that folder, and prints the deploy command for it.
  *
  *   npm run deploy:vercel
  */
@@ -38,8 +38,11 @@ try {
     for (const f of findings) console.error(`  ${f.rule}: ${f.path}`)
     process.exit(1)
   }
-  console.log(`Preflight passed for ${sha}. Deploying tracked source only...`)
-  execFileSync('vercel', ['deploy', '--prod', '--yes', '--cwd', dir], { stdio: 'inherit', shell: process.platform === 'win32' })
-} finally {
+  // The upload is left to the person deploying: this script never launches
+  // the Vercel CLI (no PATH lookup or shell for it from here).
+  console.log(`Preflight passed for ${sha}: ${dir} contains tracked source only.`)
+  console.log(`Deploy it with:\n  vercel deploy --prod --yes --cwd "${dir}"\nthen delete that folder.`)
+} catch (err) {
   rmSync(dir, { recursive: true, force: true })
+  throw err
 }

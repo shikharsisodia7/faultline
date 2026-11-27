@@ -26,13 +26,14 @@ Run against https://faultline.app.space. Full evidence is in `docs/FINAL-RELEASE
 - **Roles.** Outsider, viewer, collaborator and revocation are enforced by the real action code (`src/server/actions.test.ts`, in CI). The live three-account run (`tests/authz.spec.ts`) has not been executed yet.
 - **Scans.** Semgrep found 0 issues on the final revision. The five findings Semgrep Guardian reported during development were all fixed (rule ids and commits are in the audit). gitleaks found no leaks. One low dev-only esbuild advisory is accepted, with reasons, in the audit.
 
-- **Credential hygiene.** Local DeepSpace credentials (`.dev.vars`) were found in two private Vercel deployment sources (never public, never in git). Uploads now exclude them via `.vercelignore`; deleting those deployments and rotating the credentials are owner actions (see the audit).
+- **Credential hygiene.** Local DeepSpace credentials (`.dev.vars`) were found in two private Vercel deployment sources (never public, never in git). Both deployments were deleted (Vercel now returns 404 for them). A deployment preflight (`scripts/deploy-preflight.mjs`, run in CI) blocks secret-bearing files, and manual deploys use tracked source only. Rotation is pending with DeepSpace.
+- **Presence.** Presence rooms admitted anonymous sockets and exposed viewers' ids and names (found live). They now require a verified token and active membership in the incident's workspace; verified on production.
 
 Automated scans and these probes reduce risk; they do not prove the absence of vulnerabilities.
 
 ## Known limitations
 
-- Presence rooms (who is viewing an incident) are keyed by unguessable incident ids but do not check workspace membership; they carry names and playheads only.
+- **Exposed app credentials not yet rotated.** `APP_OWNER_JWT` and `APP_IDENTITY_TOKEN` were present in two private Vercel deployment sources (now deleted). DeepSpace offers no self-service rotation for this account type; revocation has been requested from DeepSpace and is pending.
 - Multi-account enforcement on the live platform awaits the `tests/authz.spec.ts` run.
 - External integration-proxy features are off by default and have not been exercised.
 - No independent security review or penetration test has been done.

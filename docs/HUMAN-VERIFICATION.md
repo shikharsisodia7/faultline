@@ -9,7 +9,7 @@ What a person has verified, and what still needs a person. Automated checks (tes
 | Check | Result |
 | --- | --- |
 | Engine unit tests (`npm run test:engine`) | 103 passing |
-| Server, schema and SDK-usage tests | 21 passing (includes the role matrix through the real action code) |
+| Server, schema, SDK-usage, presence and deploy-script tests | 34 passing (includes the role matrix through the real action code and the presence gate) |
 | Live DeepSpace app, agent-driven as the signed-in owner | Real upload → background job → persisted investigation; reload persistence; two-session live sync; simulation on the imported incident; empty and malformed files handled; storage forgeries and cross-user file access refused (details in FINAL-RELEASE-AUDIT.md) |
 | Type checking (app and engine) | Clean |
 | ESLint | Clean |
@@ -49,6 +49,7 @@ A short, practical list. Tick each item only after you have done it yourself.
 
 ### Owner-controlled release steps
 - [ ] Create three DeepSpace test accounts and run `npx deepspace test run tests/authz.spec.ts`. Record the result in the log below.
+- [ ] Email security@deep.space asking them to revoke the exposed `APP_IDENTITY_TOKEN` and `APP_OWNER_JWT`s for app `app_01M8D1XKCZTT0XPX2XRMPPZR22` and issue replacements (exact request in FINAL-RELEASE-AUDIT.md). Record their confirmation below.
 - [ ] Review and send `docs/DEEPSPACE-SUBMISSION.md`.
 
 ## Log

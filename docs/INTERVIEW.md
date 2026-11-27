@@ -108,6 +108,10 @@ Good stories for "tell me about a bug":
 - **Type assertions hid a wrong SDK assumption.** `useAuth()` was cast to `{ user?: … }`, but the SDK has no `user` on it, so `user.id` was always undefined and nobody got a workspace. Lesson: casts switch off the compiler exactly where you most need it. The guard test `src/lib/sdk-usage.test.ts` now forbids them.
 - **An immutable column patched after creation.** The workspace's team field was created as `'pending'` and then updated, which the RecordRoom refuses. The fix chooses the id before creating. `src/server/actions.test.ts` drives the real actions through an in-memory RecordRoom that enforces `immutable`.
 
+## A security bug found by probing production
+
+Presence ("who is viewing") rooms were opened with an optional token. An anonymous WebSocket to `/ws/presence/incident:<id>` was admitted and received viewers' user ids and names. Incident ids are a timestamp plus six random characters, so they are guessable within a time window. The fix, `canJoinPresence` in `src/server/realtime-routes.ts`, requires a verified token, accepts only `incident:<id>` scopes, and checks active membership in the incident's workspace with the same internal RecordRoom lookup the Yjs guard uses. It fails closed on any error. Tests in `src/server/presence-access.test.ts` were written first. The lesson: realtime channels need the same authorization as records, and "unguessable id" is not access control.
+
 ## Five live coding exercises
 
 Each lists the files to open and the tests to write first.

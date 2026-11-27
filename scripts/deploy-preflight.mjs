@@ -30,7 +30,7 @@ const FORBIDDEN_DIRS = new Set(['.deepspace', '.wrangler', '.vercel-local', '.re
 
 /** Credential-shaped content. Matches are reported by rule only. */
 const FORBIDDEN_CONTENT = [
-  { rule: 'deepspace-app-credential', re: /^\s*(APP_OWNER_JWT|APP_IDENTITY_TOKEN)\s*=\s*\S{16,}/m },
+  { rule: 'deepspace-app-credential', re: /^[ \t]*(?:APP_OWNER_JWT|APP_IDENTITY_TOKEN)[ \t]*=[ \t]*\S{16}/m },
   { rule: 'private-key-block', re: /-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----/ },
   { rule: 'signed-jwt', re: /\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{16,}/ },
 ]

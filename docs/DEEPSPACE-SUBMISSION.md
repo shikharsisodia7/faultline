@@ -39,7 +39,8 @@ The code, tests and documentation were written by an AI coding agent (Claude Cod
 
 ## What the agent tested
 
-- 103 engine and 21 server unit tests, 11 browser usability tests in CI, and axe-core with 0 violations on six pages.
+- 103 engine and 34 server, presence and deploy-script tests, 11 browser usability tests in CI, and axe-core with 0 violations on six pages.
+- Probing production found and fixed an open presence channel (anonymous sockets could see who was viewing an incident).
 - On the live app: sign-in, a real upload through a background job to a persisted, reloaded and synced investigation, simulation on the imported incident, and malformed and empty file handling.
 - Storage security on the live platform: the real key format, 11 forged keys refused, and other users' files unreadable and undeletable.
 - Two bugs found only on the live platform and fixed with regression tests (see `docs/FINAL-RELEASE-AUDIT.md`).
@@ -51,6 +52,7 @@ The code, tests and documentation were written by an AI coding agent (Claude Cod
 ## Limitations
 
 - The live three-account authorization suite is written but has not run yet: it needs DeepSpace test accounts created by the owner.
+- Two app credentials were exposed in private Vercel deployment sources (never public, never in git). Those deployments are deleted, and revocation has been requested from DeepSpace; it is not yet confirmed.
 - Correlation scores are heuristic, not calibrated probabilities.
 - Simulations of imported incidents use a derived model with default parameters where the logs don't say otherwise; those defaults are disclosed in each run.
 - Demo incidents are synthetic and labeled.
