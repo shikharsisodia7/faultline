@@ -1,0 +1,22 @@
+# Never upload local secrets or tool state to Vercel. The DeepSpace CLI writes
+# long-lived app credentials (APP_OWNER_JWT, APP_IDENTITY_TOKEN) into
+# .dev.vars on every dev/test/deploy run; `vercel deploy` uploads the project
+# directory, and without this file it uploaded .dev.vars (found 2026-11-26).
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example
+*.local
+.wrangler
+.wrangler.deepspace.*.toml
+.deepspace
+.vercel
+.remember
+.claude
+node_modules
+dist
+dist-vercel
+coverage
+test-results
+playwright-report
