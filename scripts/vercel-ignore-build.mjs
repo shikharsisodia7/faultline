@@ -28,10 +28,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   let files = null
   try {
     const prev = process.env.VERCEL_GIT_PREVIOUS_SHA || 'HEAD^'
-    // Runs only on Vercel's Linux build image: resolve git from fixed system
-    // directories, never from an inherited PATH.
-    const env = { ...process.env, PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' }
-    files = execFileSync('git', ['diff', '--name-only', prev, 'HEAD'], { encoding: 'utf8', env }).split('\n').filter(Boolean)
+    // Runs only on Vercel's Linux build image. Call git by absolute path so
+    // nothing is resolved through PATH; if it is missing, the catch builds.
+    files = execFileSync('/usr/bin/git', ['diff', '--name-only', prev, 'HEAD'], { encoding: 'utf8' }).split('\n').filter(Boolean)
   } catch {
     files = null // shallow clone or first deploy: build to be safe
   }
