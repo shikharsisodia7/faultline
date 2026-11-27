@@ -75,7 +75,62 @@ Two details worth pointing out:
 
 **5. Let the type checker find the UI.** `npx tsc --noEmit` failed on `defaultIntervention` in `src/features/simulate/InterventionEditor.tsx`, because its switch over every kind no longer returned for all of them. Add a default (the first service that calls something, at its current timeout) and the two editor fields.
 
-**6. Verify.** `npm run test:engine` (102 passing), `npm run type-check`, `npm run lint`.
+**6. Verify.** `npm run test:engine` (103 passing, including a reproducibility test for the timeout branch added later), `npm run type-check`, `npm run lint`.
+
+## How timeout changes move the outcome
+
+A timeout is how long a caller waits for a dependency before giving up (`simulator.ts:436` schedules it when the call is dispatched). Lengthening it rescues slow-but-successful calls, but each waiting request holds a worker for longer, so under heavy load the caller's own queue fills faster. Shortening it frees workers quickly, but every call slower than the budget fails, and with retries enabled each failure can come back as extra load. Neither direction is always better, which is why `compareRuns` reports both success rate and retries, and why one test requires an impossible 2 ms budget to come out *worse*.
+
+## Why some interventions make things worse
+
+Changes interact through queues. More retries rescue individual requests but multiply load on a struggling dependency (the retry storm demo). A circuit breaker fails fast, which is good, but requests that needed the dependency now fail outright unless it is optional. A smaller pool or a shorter timeout can turn a healthy system into a failing one. The engine never assumes an intervention helps. Verdicts come only from `compareRuns` (`interventions.ts:209`), and the tests "reports an intervention that makes things worse honestly" and the 2 ms timeout case keep it that way.
+
+## The storage ownership fix
+
+`src/server/keys.ts` (`isOwnPrivateKey`) decides whether a file key belongs to the caller. It started as a substring check: a key that merely *contained* `users/<me>/` passed, so `apps/<app>/users/<victim>/apps/<app>/users/<me>/x` would have been accepted. It is now an exact anchored prefix `apps/<appId>/users/<userId>/`, built from the server's own `env.DEEPSPACE_APP_ID` and the verified session user, never from request input. It rejects `..`, empty segments, backslashes, percent-encoded or double-encoded separators, Unicode slash look-alikes, control characters, and anything that changes under NFKC normalization, and it never decodes. The real platform's key format was confirmed by a live upload (the app id, not the name). Tests: `src/server/keys.test.ts`. Live results: `docs/FINAL-RELEASE-AUDIT.md`.
+
+## How the native DeepSpace integrations fit together
+
+1. The browser signs in (OAuth), and `useAuth().userId` identifies the user.
+2. Evidence uploads go to private R2 storage (`useR2Files`, scope `self`) at a key the platform prefixes with the app id and user id.
+3. The client calls the `registerSource` action. The server re-checks the key with `isOwnPrivateKey` and writes a `sources` record.
+4. `startIngestion` enqueues a JobRoom job (`src/jobs.ts`). The job reads the file with `appFiles` scoped to the uploader recorded on the source (`src/server/ingest.ts:160`), re-validates the key, normalizes and correlates, writes events and hypotheses, and mirrors its progress into `ingestion_jobs`.
+5. Every page reads through RecordRoom subscriptions (`useQuery`), filtered server-side by team membership (`teamField` plus `team_members`), so changes sync live and outsiders never receive the records.
+
+## Two deployments, one codebase
+
+- **DeepSpace (`vite.config.ts`, https://faultline.app.space):** the full app, with auth providers, records, files, jobs and presence.
+- **Vercel (`vite.vercel.config.ts`, https://faultline-coral.vercel.app):** a no-account demo built from `src/vercel/`, with `__FAULTLINE_TARGET__ = 'vercel'`. It has synthetic incidents and a browser-local lab, and no auth providers. `src/lib/target.ts` decides which links exist, so full-app links appear only when `VITE_CANONICAL_URL` is set to a verified URL.
+
+## Two bugs that only the live platform revealed
+
+Good stories for "tell me about a bug":
+- **Type assertions hid a wrong SDK assumption.** `useAuth()` was cast to `{ user?: … }`, but the SDK has no `user` on it, so `user.id` was always undefined and nobody got a workspace. Lesson: casts switch off the compiler exactly where you most need it. The guard test `src/lib/sdk-usage.test.ts` now forbids them.
+- **An immutable column patched after creation.** The workspace's team field was created as `'pending'` and then updated, which the RecordRoom refuses. The fix chooses the id before creating. `src/server/actions.test.ts` drives the real actions through an in-memory RecordRoom that enforces `immutable`.
+
+## Five live coding exercises
+
+Each lists the files to open and the tests to write first.
+
+### 1. Add a new simulation intervention
+
+Follow the worked example above (`set_timeout`), for instance "warm standby" (raise capacity after a delay). Touch `packages/engine/src/simulate/interventions.ts` (union, `INTERVENTION_KINDS`, `describeIntervention`, `branchScenario`), and `src/features/simulate/InterventionEditor.tsx` (default and fields). Tests in `simulate/simulator.test.ts`: applies only after the branch point (`modelAt`), the prefix stays identical, a case where it helps, a case where it hurts or does nothing, and range validation.
+
+### 2. Change a correlation weight
+
+Weights live in `DEFAULT_CORRELATION_PARAMS` (`packages/engine/src/correlate/correlate.ts:57`); for example `sameService: 0.12`. Signals combine by noisy-OR (`correlate.ts:285`), so raising one weight can only raise scores that use that signal. Tests in `correlate/correlate.test.ts`: assert the expected ranking change on a small fixture, and keep "does not correlate an unrelated service by proximity alone" passing. If that test breaks, the weight is too strong.
+
+### 3. Support an additional log field name
+
+Field aliases live in `FIELD_ALIASES` (`packages/engine/src/normalize/fields.ts:8`); for example add `'svc_name'` to `service`. Aliases are compared lowercased. Tests in `normalize/normalize.test.ts`, next to "resolves aliased headers (svc, msg, trace)": a CSV header and a JSON key using the new name both end up in the canonical field, and provenance is kept.
+
+### 4. Add a security regression test
+
+Open `src/server/keys.test.ts`. Pick an input the validator should refuse, for example a key with a trailing dot segment (`.../users/<me>/./x`) or a full-width percent sign. Write the failing expectation first, and only then decide whether `keys.ts` needs a change. Never relax an existing expectation. Run `npx vitest run src/server`.
+
+### 5. Add a simulation comparison metric
+
+Metrics are listed in `compareRuns` (`packages/engine/src/simulate/interventions.ts:214-221`), each as `delta(name, baseline, branch, lowerIsBetter, tolerance)`. Add, for example, "Peak queue depth" from the run samples. Tests: a scenario where the metric gets worse is reported `worse`, a no-op branch reports `same` within tolerance, and the overall verdict logic still treats mixed results as mixed. Check that the UI comparison table (`src/features/story/WhatIfExplorer.tsx`, `OutcomeComparison`) shows it.
 
 ## How AI was used, and how to talk about it
 
