@@ -69,7 +69,7 @@ export default function Navigation() {
 
   return (
     <>
-      <nav data-testid="app-navigation" className="border-b border-border bg-background">
+      <nav data-testid="app-navigation" className="no-print border-b border-border bg-background">
         <div className="mx-auto flex h-12 max-w-7xl items-center gap-4 px-4">
           <Link to="/" className="rounded-sm" aria-label="Faultline home">
             <Wordmark />

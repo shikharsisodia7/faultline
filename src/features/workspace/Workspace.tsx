@@ -199,7 +199,7 @@ export function Workspace(props: WorkspaceProps) {
   const Root = props.embedded ? 'div' : 'main'
   return (
     <Root className={cn('flex min-h-0 flex-col bg-background', props.embedded ? 'h-full' : 'h-dvh')}>
-      <header className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-1.5">
+      <header className="no-print flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-1.5">
         {props.headerLeft}
         <div className="flex min-w-0 items-center gap-2">
           <h1 className="truncate text-[14px] font-semibold tracking-[-0.01em] text-foreground">{dataset.meta.title}</h1>

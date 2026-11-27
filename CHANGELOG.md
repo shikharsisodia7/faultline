@@ -14,6 +14,16 @@ Not tagged: the live three-account authorization run is still pending (see docs/
 - Reproducibility test for the timeout what-if.
 - docs/FINAL-RELEASE-AUDIT.md and docs/DEEPSPACE-SUBMISSION.md; interview guide expanded with five live coding exercises.
 
+### Security
+- Presence rooms admitted anonymous sockets and exposed viewers' ids and names (found on production). They now require a verified token and workspace membership; 4 tests.
+- Deployment preflight (`scripts/deploy-preflight.mjs`) blocks secret-bearing files, runs in CI, and is used by the tracked-source-only manual deploy script.
+- The two Vercel deployments whose source held `.dev.vars` were deleted. Credential rotation is pending with DeepSpace.
+- SonarCloud `S4036` findings in the new scripts fixed in code (fixed `PATH` for git; no CLI launch from the deploy script).
+
+### Changed
+- Production builds skip autosave commits and commits that touch no build input (`vercel.json` `ignoreCommand`).
+- Report exports are named `incident-report-*`; app header and navigation no longer print into the PDF.
+
 ### Fixed
 - Signed-in users never got a workspace (found on the live platform): auth hook results were type-cast to a shape the SDK doesn't return. Now uses `useAuth().userId` / `useAuthUser()`, with a guard test against such casts.
 - Workspace creation patched an immutable team field, which the platform refuses. The id is now chosen up front, and the caller's half-created rows are cleaned up.

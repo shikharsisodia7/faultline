@@ -23,7 +23,7 @@ export function PostmortemPanel({ dataset, hypotheses, reviews, simulations, onS
   const generatedAt = useMemo(() => Date.now(), [])
   const pm = useMemo(() => generatePostmortem({ dataset, hypotheses, reviews, simulations, generatedAt }), [dataset, hypotheses, reviews, simulations, generatedAt])
   const start = dataset.events[0]?.ts ?? 0
-  const base = `postmortem-${slug(dataset.meta.title)}`
+  const base = `incident-report-${slug(dataset.meta.title)}`
 
   return (
     <div className="h-full min-h-0 overflow-y-auto" data-tour="postmortem">

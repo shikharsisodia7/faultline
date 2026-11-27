@@ -83,7 +83,8 @@ npm run typecheck:engine
 npm run type-check         # whole app
 npm run lint
 npm run build:vercel       # standalone production build
-npx vitest run src/lib src/server src/schemas   # server, schema and SDK-usage tests (21)
+npx vitest run src/lib src/server src/schemas scripts   # server, schema, presence and deploy-script tests (34)
+npm run preflight -- <dir>   # refuse to deploy a folder containing secret-bearing files
 npm run test:usability     # usability acceptance tests (11) against the live demo; set FAULTLINE_URL to test another build
 npx deepspace test run tests/authz.spec.ts   # 3-account authorization on the DeepSpace runtime (needs 3 test accounts)
 npm test                   # DeepSpace smoke/api/collab suites (needs DeepSpace login)
@@ -110,7 +111,7 @@ Verified on the live app on 2026-11-26 (details and evidence in [the release aud
 | Suite | Result |
 | --- | --- |
 | Engine unit tests | 103 passing |
-| Server, schema and SDK-usage tests | 21 passing |
+| Server, schema, presence and deploy-script tests | 34 passing |
 | Browser usability tests | 11 passing, in CI against each commit's own build |
 | Accessibility (axe-core, WCAG 2.1 A/AA) | 0 violations on 6 primary pages |
 | Three-account authorization on DeepSpace | Written (`tests/authz.spec.ts`), **not yet run**: needs test accounts |
@@ -119,7 +120,8 @@ Verified on the live app on 2026-11-26 (details and evidence in [the release aud
 
 - Correlation scores are heuristic, not calibrated probabilities.
 - Simulations of imported incidents use a model derived from the logs, with disclosed defaults where the logs are silent; results are estimates, not predictions.
-- The live three-account authorization run, presence, and the optional integration-proxy features have not been verified on the platform.
+- The live three-account authorization run and the optional integration-proxy features have not been verified on the platform.
+- App credentials exposed in two (now deleted) private Vercel deployment sources await revocation by DeepSpace; see SECURITY.md.
 - No usability testing with real people has happened yet.
 
 ## Project documents

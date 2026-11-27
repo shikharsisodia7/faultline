@@ -23,6 +23,20 @@ coverage/
 dist-vercel/
 *.local
 .DS_Store
+# Credentials and caches that must never be committed or uploaded
+test-accounts.json
+playwright-states/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ecdsa*
+id_ed25519*
+.npmrc
+.netrc
+credentials.json
+.remember/
 # Keep env files ignored, except the documented example (must stay last)
 .env*
 !.env.example

@@ -27,6 +27,9 @@ All of the source code, tests, documentation, brand assets and configuration in 
 The commit history is not squashed, so these remain visible:
 - **Wrong SDK assumption, hidden by type casts.** Six call sites cast `useAuth()` to a shape the SDK doesn't return (`user.id`), which hid the error from the compiler. On the live app, no signed-in user got a workspace. Found by testing the real deployment, fixed, and guarded by a test that forbids such casts.
 - **Patched an immutable column.** Workspaces were created with a placeholder team id and then updated, which the platform refuses. Found on the live app, and fixed with a regression test that reproduces the platform's rule.
+- **Autosaves pushed to `main`.** The agent's own 10-minute checkpoint loop pushed to whatever branch was checked out, which was `main`, against the owner's standing instruction to checkpoint on a feature branch. Every checkpoint triggered a production build. Stopped; later work went through a release branch and PR.
+- **Uploaded local credentials to Vercel.** Deploying with the Vercel CLI from the working folder uploaded `.dev.vars`. Found by the agent's own scan, contained (deployments deleted with the owner's authorization), and prevented with a CI-enforced preflight. Rotation needs DeepSpace.
+- **Accidental stash.** A malformed command ran `git stash -u` and briefly hid uncommitted work; it was restored immediately with no loss.
 - A shell edit wrote a literal line break into a test file. The test file silently dropped out of the run (103 tests became 84) until the agent noticed the count change.
 - Early scenario tuning produced incidents that didn't cascade, or failed from the first second. Fixed by staging the rollouts and re-tuning capacities, with tests that check the story matches the run.
 - The first private-file check was a substring match. Replaced with an anchored, normalization-aware check with exhaustive tests.
