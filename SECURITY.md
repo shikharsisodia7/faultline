@@ -26,6 +26,8 @@ Run against https://faultline.app.space. Full evidence is in `docs/FINAL-RELEASE
 - **Roles.** Outsider, viewer, collaborator and revocation are enforced by the real action code (`src/server/actions.test.ts`, in CI). The live three-account run (`tests/authz.spec.ts`) has not been executed yet.
 - **Scans.** Semgrep found 0 issues on the final revision. The five findings Semgrep Guardian reported during development were all fixed (rule ids and commits are in the audit). gitleaks found no leaks. One low dev-only esbuild advisory is accepted, with reasons, in the audit.
 
+- **Credential hygiene.** Local DeepSpace credentials (`.dev.vars`) were found in two private Vercel deployment sources (never public, never in git). Uploads now exclude them via `.vercelignore`; deleting those deployments and rotating the credentials are owner actions (see the audit).
+
 Automated scans and these probes reduce risk; they do not prove the absence of vulnerabilities.
 
 ## Known limitations

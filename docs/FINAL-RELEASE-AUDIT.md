@@ -70,6 +70,14 @@ The original exercise **requires** the six native primitives (records and sync, 
 
 Automated scanners finding nothing does not mean the application is secure.
 
+### Finding: local DeepSpace credentials uploaded to Vercel (found and contained 2026-11-26)
+
+- **What.** The gitleaks working-tree scan flagged `.dev.vars`, where the DeepSpace CLI writes the app's `APP_OWNER_JWT` (app-scoped, valid 10 years, can make owner-billed platform calls) and `APP_IDENTITY_TOKEN` (authenticates app-origin platform calls, including files). Both files are git-ignored and were never committed; the full-history scan is clean.
+- **How it leaked.** `vercel deploy` uploads the project directory, and the project had no `.vercelignore`. Two CLI production deployments made after the app was registered carry `.dev.vars` in their private deployment source: `dpl_3oeZrNc8cSzAEZFbXXNsqcvqL74V` and `dpl_8LDryqTziH8FxfKJPne3fTLETHEh`. Vercel serves only `dist-vercel`, so the file was never publicly downloadable; it was visible to anyone with access to the owner's Vercel project. Git-built deployments have no uploaded source tree and are not affected. `.env.local` (Vercel's own OIDC token) was not uploaded.
+- **Fixed.** `.vercelignore` excludes every local secret and tool-state file. The next deployment (`dpl_YWz1uGPBsHnSQXP84xDmHHuqWBg8`) was checked: 274 files, no `.dev.vars`.
+- **Remaining (owner).** (1) Delete the two affected deployments. (2) Rotate the two credentials. The DeepSpace CLI has no rotation command for a regular app, and the documented `auth agent revoke` applies to agent accounts only, so ask DeepSpace support how to reissue `APP_OWNER_JWT` and `APP_IDENTITY_TOKEN` for app `app_01M8D1XKCZTT0XPX2XRMPPZR22`.
+- **Also observed.** The Vercel project has a GitHub connection, so every push to `main` (including auto-checkpoint commits) triggers a production deployment built from the repository. Harmless for secrets, but it counts toward the account's deployment quota.
+
 ## Tests (final run)
 
 | Suite | Count | Where it runs |
