@@ -2,14 +2,15 @@
 
 What a person has verified, and what still needs a person. Automated checks (tests, type checking, linting, scanners, scripted browsers) are listed separately. They don't replace human review or real usability testing.
 
-**Status as of 2026-11-25: no item below has been verified by the owner or any other person yet.** Tick items only after doing them yourself, and add your name and the date.
+**Status as of 2026-11-26: no item below has been verified by the owner or any other person yet.** (The owner did sign in to DeepSpace and to the live app so the agent could test the authenticated workflow. That was access, not verification.) Tick items only after doing them yourself, and add your name and the date.
 
 ## Automated checks that were run (by the agent)
 
 | Check | Result |
 | --- | --- |
-| Engine unit tests (`npm run test:engine`) | 102 passing |
-| Server and schema tests | 13 passing |
+| Engine unit tests (`npm run test:engine`) | 103 passing |
+| Server, schema and SDK-usage tests | 21 passing (includes the role matrix through the real action code) |
+| Live DeepSpace app, agent-driven as the signed-in owner | Real upload → background job → persisted investigation; reload persistence; two-session live sync; simulation on the imported incident; empty and malformed files handled; storage forgeries and cross-user file access refused (details in FINAL-RELEASE-AUDIT.md) |
 | Type checking (app and engine) | Clean |
 | ESLint | Clean |
 | Standalone production build | Builds |
@@ -21,33 +22,34 @@ What a person has verified, and what still needs a person. Automated checks (tes
 | axe-core 4.10 (WCAG 2.1 A/AA + best practice) on landing, examples, guided demo, engineering mode, lab, docs | 0 violations after fixes. Automated rules catch only part of WCAG; screen-reader testing has not been done |
 | Containerized Playwright at 1920, 1440, 1280, 768 and 390 px | Screenshots in `docs/screenshots/`. No horizontal overflow at 390 or 768 px on the pages measured |
 
-**Not run:** DeepSpace smoke, API and collaboration suites (`npm test`), which need a DeepSpace sign-in. No Lighthouse or performance benchmark has been run, so none is quoted anywhere.
+**Not run:** the DeepSpace Playwright suites (`smoke`, `api`, `collab`, and the three-account `authz` spec), which need DeepSpace test accounts the owner creates. No Lighthouse or performance benchmark has been run, so none is quoted anywhere.
 
 ## Owner checklist
 
-### Understand the code
-- [ ] Read [ENGINEERING-WALKTHROUGH.md](ENGINEERING-WALKTHROUGH.md) end to end, opening each file it names.
-- [ ] Make a small change yourself, test-first (for example, a new intervention following the worked example in [INTERVIEW.md](INTERVIEW.md)), and get the tests passing.
-- [ ] Be able to explain noisy-OR scoring, checkpointed replay, and the prefix-identical check without notes.
+A short, practical list. Tick each item only after you have done it yourself.
 
-### Product, in a browser
-- [ ] Landing page on desktop and on your own phone: the hero simulation plays, the what-if pills change the outcome, and every nav and footer link works.
-- [ ] Guided demo, all four steps, for each of the three example incidents.
-- [ ] Switch to Engineering mode mid-demo and back; the state carries over.
-- [ ] Experiment lab: pick a system, trigger an event, run, pin as strategy, change one thing, run, compare.
-- [ ] Keyboard only: tab through the landing page and drive the Faultline Timeline with the arrow keys, Home, End and D.
-- [ ] Reduced motion turned on in your operating system: animations stop or simplify.
+### Use it
+- [ ] Open https://faultline.app.space and https://faultline-coral.vercel.app on your laptop and your phone.
+- [ ] Complete the public demo (all four guided steps) for one example.
+- [ ] Run a what-if yourself: change the decision or its timing, run it, and read the comparison.
+- [ ] Explain in your own words the difference between what was **observed** (imported logs), **inferred** (ranked causes), and **simulated** (what-if results), and point to where the UI labels each.
 
-### DeepSpace (after `npx deepspace auth login` and deploy)
-- [ ] Sign in, create a workspace, import each sample file from the import flow, and open the investigation.
-- [ ] Inspect a real upload's storage key and confirm it matches `apps/<appId>/users/<userId>/…`, the format `src/server/keys.ts` assumes.
-- [ ] Two accounts: invite the second as a viewer and confirm it can read but not edit. Remove it and confirm access ends.
-- [ ] An unrelated third account cannot see the workspace or its files.
-- [ ] Kill an import mid-way (or upload a malformed file) and confirm the failure is shown and retry works.
+### Understand the code (open each file)
+- [ ] Replay engine: `packages/engine/src/replay/replay.ts` (binary search plus checkpoints every 256 events).
+- [ ] Correlation engine: `packages/engine/src/correlate/correlate.ts` (candidate windows, noisy-OR, time decay).
+- [ ] Simulation engine: `packages/engine/src/simulate/simulator.ts` and `interventions.ts` (event heap, seeded RNG, branching, `compareRuns`).
+- [ ] Storage ownership fix: `src/server/keys.ts` and `keys.test.ts`. Explain why a substring check was unsafe.
+- [ ] DeepSpace integrations: trace one upload from `NewIncidentPage.tsx` → `registerSource` → `src/jobs.ts` / `src/server/ingest.ts` → records.
 
-### Usability (people other than the builder)
-- [ ] Watch at least three people who weren't involved try the guided demo without help. Note where they hesitate. Record the findings here (no names needed).
-- [ ] Ask a non-engineer to explain back what the what-if step showed them.
+### Change something
+- [ ] Make one small code change with its test, for example one of the five exercises in [INTERVIEW.md](INTERVIEW.md), and get `npm run test:engine` passing.
+
+### Watch someone else
+- [ ] Watch at least one person who wasn't involved use the demo without help. Note where they hesitate. Record the findings below (no names needed).
+
+### Owner-controlled release steps
+- [ ] Create three DeepSpace test accounts and run `npx deepspace test run tests/authz.spec.ts`. Record the result in the log below.
+- [ ] Review and send `docs/DEEPSPACE-SUBMISSION.md`.
 
 ## Log
 

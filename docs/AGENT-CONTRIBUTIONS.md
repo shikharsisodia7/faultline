@@ -25,6 +25,9 @@ All of the source code, tests, documentation, brand assets and configuration in 
 ## Where the agent made mistakes (and fixed them)
 
 The commit history is not squashed, so these remain visible:
+- **Wrong SDK assumption, hidden by type casts.** Six call sites cast `useAuth()` to a shape the SDK doesn't return (`user.id`), which hid the error from the compiler. On the live app, no signed-in user got a workspace. Found by testing the real deployment, fixed, and guarded by a test that forbids such casts.
+- **Patched an immutable column.** Workspaces were created with a placeholder team id and then updated, which the platform refuses. Found on the live app, and fixed with a regression test that reproduces the platform's rule.
+- A shell edit wrote a literal line break into a test file. The test file silently dropped out of the run (103 tests became 84) until the agent noticed the count change.
 - Early scenario tuning produced incidents that didn't cascade, or failed from the first second. Fixed by staging the rollouts and re-tuning capacities, with tests that check the story matches the run.
 - The first private-file check was a substring match. Replaced with an anchored, normalization-aware check with exhaustive tests.
 - Mobile layouts overflowed horizontally and the lab's panels overlapped on phones. This was found by measuring `scrollWidth` in a real browser, then fixed.
@@ -32,6 +35,6 @@ The commit history is not squashed, so these remain visible:
 
 ## What the agent could not do
 
-- Deploy to DeepSpace or run the DeepSpace end-to-end suites: the owner hasn't signed in to the DeepSpace CLI yet.
+- Sign in or create accounts on the owner's behalf. The owner completed the DeepSpace CLI OAuth and the app sign-in; the three-account suite waits on owner-created test accounts.
 - Test with real users. No usability testing with people has happened (see [HUMAN-VERIFICATION.md](HUMAN-VERIFICATION.md)).
 - Verify behavior of the hosted DeepSpace platform, such as the actual storage key format of uploads in production.

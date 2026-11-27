@@ -87,6 +87,8 @@ In the UI, `src/features/story/useWhatIf.ts` runs the baseline and branches in a
 - `src/actions/index.ts`: server actions (create incident, register source, start, retry or cancel ingestion, copy demo, and so on). The acting user always comes from the verified session (the `userId` the platform passes to each action), and permissions are checked against it with `requireRole`. Ids in the payload only name a target. For example, `setMember` reads the member to change from `params.userId`, but only after confirming the caller is an owner.
 - `src/jobs.ts` and `worker.ts`: the ingestion job room (2 attempts, 5 s backoff) and its stages (reading, validating, normalizing, deduplicating, correlating, persisting). Clients can neither enqueue nor read jobs directly. Progress is mirrored into a collection.
 - `src/server/keys.ts`: the private-file key check, with exhaustive tests in `keys.test.ts`.
+  The live platform stores `scope=self` uploads at `apps/<appId>/users/<userId>/<name>`, prefixed with the app **id**, not its name. This was confirmed by a real upload on 2026-11-26 and is pinned by a test.
+- `src/server/actions.test.ts`: drives the real actions through an in-memory RecordRoom that enforces the schemas' `immutable` columns, plus the outsider, viewer, collaborator and revocation matrix. It exists because two bugs reached the live app that unit tests of pure helpers could not catch.
 
 ## 8. Two builds, one UI
 

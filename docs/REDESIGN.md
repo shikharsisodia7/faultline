@@ -32,13 +32,13 @@ Faultline borrows principles, not assets: its texture is an original topographic
 - [x] Faultline Timeline (branching) component, keyboard-operable (covered by the usability suite)
 - [x] Guided demo: What happened / Why / What if / Compare
 - [x] Guided and Engineering modes sharing state
-- [x] App navigation: Home, Investigate, Experiment, Reports (DeepSpace pages type-check; unverified live until the DeepSpace deploy)
-- [x] Guided import flow, four steps (code complete; the upload path is unverified until the DeepSpace deploy)
+- [x] App navigation: Home, Investigate, Experiment, Reports (verified live on DeepSpace)
+- [x] Guided import flow, four steps (verified live: real upload through to a persisted investigation)
 - [x] Approachable experiment lab (simple mode + Advanced settings; banking template)
 - [x] Copy and terminology pass
 - [x] Security test expansion (`src/server/keys.test.ts`) and scan review (Semgrep, gitleaks)
 - [x] Vercel deployment verified: https://faultline-coral.vercel.app (direct routes, refresh, desktop + phone)
-- [ ] DeepSpace deployment verified (blocked: owner must run `npx deepspace auth login`)
+- [x] DeepSpace deployment verified: https://faultline.app.space
 - [x] Visual QA at 1920, 1440, 1280, 768, 390 (`docs/screenshots/`); axe-core: 0 violations on the six main pages
 - [x] README, INTERVIEW.md, screenshots, demo GIF
 - [ ] Usability testing with real people (not done; automated acceptance tests are not a substitute — see HUMAN-VERIFICATION.md)

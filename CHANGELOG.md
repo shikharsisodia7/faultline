@@ -2,9 +2,22 @@
 
 All notable changes to this project. Dates are UTC-8.
 
-## Unreleased
+## Unreleased: release candidate for 1.0.0
 
-Nothing yet.
+Not tagged: the live three-account authorization run is still pending (see docs/FINAL-RELEASE-AUDIT.md).
+
+### Added
+- Full app deployed to DeepSpace: https://faultline.app.space. The Vercel demo links to it.
+- `tests/authz.spec.ts`: owner / collaborator / outsider through direct action calls on the DeepSpace runtime (needs test accounts).
+- Role-matrix and workspace-creation tests through the real action code, with an in-memory RecordRoom that enforces immutable columns.
+- Regression test pinning the real platform storage-key format.
+- Reproducibility test for the timeout what-if.
+- docs/FINAL-RELEASE-AUDIT.md and docs/DEEPSPACE-SUBMISSION.md; interview guide expanded with five live coding exercises.
+
+### Fixed
+- Signed-in users never got a workspace (found on the live platform): auth hook results were type-cast to a shape the SDK doesn't return. Now uses `useAuth().userId` / `useAuthUser()`, with a guard test against such casts.
+- Workspace creation patched an immutable team field, which the platform refuses. The id is now chosen up front, and the caller's half-created rows are cleaned up.
+- Report heading and export say "Incident report"; page title and description use the current positioning.
 
 ## 0.2.0: product redesign (2026-11-25)
 

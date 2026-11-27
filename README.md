@@ -4,9 +4,12 @@ The flight recorder for software.
 
 Understand what broke, replay what happened, and explore what could have gone differently.
 
-**Live demo:** https://faultline-coral.vercel.app — no account needed. The demo incidents are synthetic and labeled as such everywhere they appear.
+| | |
+| --- | --- |
+| **Full app (DeepSpace)** | https://faultline.app.space: sign in, import your own logs, private storage, background imports, shared workspaces |
+| **No-account demo (Vercel)** | https://faultline-coral.vercel.app: synthetic incidents and the experiment lab, nothing stored on a server |
 
-The full application (sign-in, private uploads, shared workspaces, background imports) runs on DeepSpace. That deployment has **not been published yet**; see [Deployment status](#deployment-status).
+The demo incidents are synthetic and labeled as such everywhere they appear.
 
 ![Faultline landing page: a live simulated online store during a flash sale](docs/screenshots/landing-1440.png)
 
@@ -75,26 +78,49 @@ npm run dev
 ## Tests and checks
 
 ```sh
-npm run test:engine        # engine unit tests (102)
+npm run test:engine        # engine unit tests (103)
 npm run typecheck:engine
 npm run type-check         # whole app
 npm run lint
 npm run build:vercel       # standalone production build
-npx vitest run src/lib src/server src/schemas   # server + schema tests (13)
+npx vitest run src/lib src/server src/schemas   # server, schema and SDK-usage tests (21)
 npm run test:usability     # usability acceptance tests (11) against the live demo; set FAULTLINE_URL to test another build
+npx deepspace test run tests/authz.spec.ts   # 3-account authorization on the DeepSpace runtime (needs 3 test accounts)
 npm test                   # DeepSpace smoke/api/collab suites (needs DeepSpace login)
 ```
 
 Security scanning used during development: Semgrep (`semgrep/semgrep` container) and gitleaks over the full history. See [SECURITY.md](SECURITY.md).
 
-## Deployment status
+## DeepSpace integrations
 
-| Target | Status |
+Verified on the live app on 2026-11-26 (details and evidence in [the release audit](docs/FINAL-RELEASE-AUDIT.md)):
+
+| Integration | What Faultline uses it for | Verified |
+| --- | --- | --- |
+| Authentication | Sign-in; every server action rejects anonymous and forged tokens | Yes |
+| RecordRoom records + real-time sync | Incidents, events, hypotheses, reviews; live between sessions | Yes |
+| R2 file storage (`scope: self`) | Private evidence at `apps/<appId>/users/<userId>/…`, re-checked by the server | Yes, including refused cross-user access |
+| JobRoom background jobs | Staged, retryable evidence imports | Yes |
+| Server actions + roles | The only write path; owner / collaborator / viewer | Yes (single account live; full role matrix in CI) |
+| Deployment | `npx deepspace deploy` from the GitHub source | Yes |
+| Integration proxy (AI summary, GitHub commits, web search) | Optional investigation helpers | Implemented, **off by default** (billed to the owner's credits), not verified |
+
+## Verified test results
+
+| Suite | Result |
 | --- | --- |
-| Standalone demo on Vercel | Live at https://faultline-coral.vercel.app. Direct routes and refresh verified. |
-| Full app on DeepSpace | **Not deployed.** Needs the owner to sign in (`npx deepspace auth login`), then `npx deepspace deploy`. Its URL will be added here only after it has been opened and checked. |
+| Engine unit tests | 103 passing |
+| Server, schema and SDK-usage tests | 21 passing |
+| Browser usability tests | 11 passing, in CI against each commit's own build |
+| Accessibility (axe-core, WCAG 2.1 A/AA) | 0 violations on 6 primary pages |
+| Three-account authorization on DeepSpace | Written (`tests/authz.spec.ts`), **not yet run**: needs test accounts |
 
-The standalone build hides every link to the full app until a verified URL is supplied at build time (`VITE_CANONICAL_URL`), so it never points at an address that is not live.
+## Known limitations
+
+- Correlation scores are heuristic, not calibrated probabilities.
+- Simulations of imported incidents use a model derived from the logs, with disclosed defaults where the logs are silent; results are estimates, not predictions.
+- The live three-account authorization run, presence, and the optional integration-proxy features have not been verified on the platform.
+- No usability testing with real people has happened yet.
 
 ## Project documents
 
