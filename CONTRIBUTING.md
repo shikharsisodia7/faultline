@@ -37,7 +37,7 @@ npx vitest run src/lib src/server src/schemas
 
 ## Adding an intervention
 
-`docs/INTERVIEW.md` walks through a real example (`set_timeout`): the union member, label, description, compiler case with a stated assumption, editor fields, and the tests to write first.
+[The engineering walkthrough](docs/ENGINEERING-WALKTHROUGH.md#9-worked-example-adding-an-intervention) walks through a real example (`set_timeout`): the union member, label, description, compiler case with a stated assumption, editor fields, and the tests to write first.
 
 ## Commit style
 

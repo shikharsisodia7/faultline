@@ -93,3 +93,48 @@ In the UI, `src/features/story/useWhatIf.ts` runs the baseline and branches in a
 ## 8. Two builds, one UI
 
 `vite.config.ts` builds the DeepSpace app. `vite.vercel.config.ts` builds `src/vercel/` with `__FAULTLINE_TARGET__ = 'vercel'`: no auth providers, synthetic or browser-local data only, routes code-split. `src/lib/target.ts` decides which links exist. The standalone build never claims cloud features it doesn't have.
+
+## 9. Worked example: adding an intervention
+
+This change exists in the repository (commit `cfa83fa`), so you can walk through it file by file. Goal: a "Change timeout" what-if, setting how long a service waits for each downstream call.
+
+**1. Write the tests first** (`packages/engine/src/simulate/simulator.test.ts`, the three `set_timeout` tests in the "counterfactual branches" block):
+
+```ts
+it('a timeout shorter than the dependency fails calls it used to complete', () => {
+  const healthy = small()  // api -> db, db answers in ~10 ms
+  const { scenario: b } = branchScenario(healthy, 30, [{ kind: 'set_timeout', service: 'api', timeoutMs: 2 }])
+  const cmp = compareRuns(runSimulation(healthy), runSimulation(b), 30)
+  expect(cmp.overall).toBe('worse')
+})
+```
+
+The other two tests check that the change applies only after the branch point (`modelAt` at 29 s vs 31 s), states its assumption, keeps the prefix identical, and rejects out-of-range values and unknown services. Run `npm run test:engine` and watch all three fail.
+
+**2. Extend the union** (`interventions.ts:14`):
+
+```ts
+| { kind: 'set_timeout'; service: string; timeoutMs: number }
+```
+
+**3. Give it a label, a description** (`INTERVENTION_KINDS`, line 25) **and a sentence** (`describeIntervention`, line 66).
+
+**4. Compile it** (`branchScenario`, line 154):
+
+```ts
+case 'set_timeout': {
+  if (!(iv.timeoutMs >= 1 && iv.timeoutMs <= 600_000)) throw new RangeError('Timeout must be within [1, 600000] ms.')
+  const was = svc(iv.service).timeoutMs
+  at({ kind: 'set_service', service: iv.service, patch: { timeoutMs: Math.round(iv.timeoutMs) } }, describeIntervention(iv))
+  assumptions.push(`${iv.service} waits up to ... (was ${was} ms); calls already in flight keep their old deadline.`)
+  break
+}
+```
+
+Two details worth pointing out:
+- `timeoutMs` is already in `SERVICE_PATCH_KEYS` (`util/safe.ts`), the allow-list the simulator uses when applying patches. A new parameter would need adding there, which is deliberate: patches can't set arbitrary keys.
+- The assumption was checked against the simulator, not guessed. `simulator.ts:436` schedules each call's timeout when the call is dispatched, so in-flight calls really do keep their old deadline.
+
+**5. Let the type checker find the UI.** `npx tsc --noEmit` failed on `defaultIntervention` in `src/features/simulate/InterventionEditor.tsx`, because its switch over every kind no longer returned for all of them. Add a default (the first service that calls something, at its current timeout) and the two editor fields.
+
+**6. Verify.** `npm run test:engine` (103 passing, including a reproducibility test for the timeout branch added later), `npm run type-check`, `npm run lint`.

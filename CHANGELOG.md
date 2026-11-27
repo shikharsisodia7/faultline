@@ -12,7 +12,7 @@ Not tagged: the live three-account authorization run is still pending (see docs/
 - Role-matrix and workspace-creation tests through the real action code, with an in-memory RecordRoom that enforces immutable columns.
 - Regression test pinning the real platform storage-key format.
 - Reproducibility test for the timeout what-if.
-- docs/FINAL-RELEASE-AUDIT.md and docs/DEEPSPACE-SUBMISSION.md; interview guide expanded with five live coding exercises.
+- docs/FINAL-RELEASE-AUDIT.md; the engineering walkthrough gained a worked example of adding an intervention.
 
 ### Security
 - Presence rooms admitted anonymous sockets and exposed viewers' ids and names (found on production). They now require a verified token and workspace membership; 4 tests.

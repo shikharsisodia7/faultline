@@ -126,7 +126,7 @@ Verified on the live app on 2026-11-26 (details and evidence in [the release aud
 
 ## Project documents
 
-[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Privacy](docs/PRIVACY.md) · [Changelog](CHANGELOG.md) · [Engineering walkthrough](docs/ENGINEERING-WALKTHROUGH.md) · [Interview guide](docs/INTERVIEW.md) · [Agent contributions](docs/AGENT-CONTRIBUTIONS.md) · [Human verification](docs/HUMAN-VERIFICATION.md) · [Redesign notes](docs/REDESIGN.md)
+[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Privacy](docs/PRIVACY.md) · [Changelog](CHANGELOG.md) · [Engineering walkthrough](docs/ENGINEERING-WALKTHROUGH.md) · [Agent contributions](docs/AGENT-CONTRIBUTIONS.md) · [Human verification](docs/HUMAN-VERIFICATION.md) · [Redesign notes](docs/REDESIGN.md)
 
 ## License
 

@@ -42,7 +42,7 @@ A short, practical list. Tick each item only after you have done it yourself.
 - [ ] DeepSpace integrations: trace one upload from `NewIncidentPage.tsx` → `registerSource` → `src/jobs.ts` / `src/server/ingest.ts` → records.
 
 ### Change something
-- [ ] Make one small code change with its test, for example one of the five exercises in [INTERVIEW.md](INTERVIEW.md), and get `npm run test:engine` passing.
+- [ ] Make one small code change with its test, for example the worked example in [ENGINEERING-WALKTHROUGH.md](ENGINEERING-WALKTHROUGH.md#9-worked-example-adding-an-intervention), and get `npm run test:engine` passing.
 
 ### Watch someone else
 - [ ] Watch at least one person who wasn't involved use the demo without help. Note where they hesitate. Record the findings below (no names needed).
@@ -50,7 +50,6 @@ A short, practical list. Tick each item only after you have done it yourself.
 ### Owner-controlled release steps
 - [ ] Create three DeepSpace test accounts and run `npx deepspace test run tests/authz.spec.ts`. Record the result in the log below.
 - [ ] Email security@deep.space asking them to revoke the exposed `APP_IDENTITY_TOKEN` and `APP_OWNER_JWT`s for app `app_01M8D1XKCZTT0XPX2XRMPPZR22` and issue replacements (exact request in FINAL-RELEASE-AUDIT.md). Record their confirmation below.
-- [ ] Review and send `docs/DEEPSPACE-SUBMISSION.md`.
 
 ## Log
 

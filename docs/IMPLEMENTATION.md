@@ -93,6 +93,6 @@ the authenticated workspace builds one from DeepSpace records.
 - [x] Security review: automated review findings fixed; Semgrep + gitleaks clean (one scaffold parse error documented)
 - [x] Accessibility + visual QA: axe-core 0 violations on six main pages; screenshots at 1920 / 1440 / 1280 / 768 / 390
 - [ ] Performance measurement: only bundle size measured (entry 742 kB -> 568 kB after code splitting); no Lighthouse or field data collected
-- [x] Documentation set, including README, walkthrough, interview guide, agent contributions and human verification
+- [x] Documentation set, including README, walkthrough, agent contributions and human verification
 - [x] DeepSpace production deploy + verification (see FINAL-RELEASE-AUDIT.md)
 - [x] Vercel deploy + verification (https://faultline-coral.vercel.app)

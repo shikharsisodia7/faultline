@@ -1,6 +1,6 @@
 # About this project
 
-Faultline is an open-source portfolio project: a flight recorder and time machine for software failures. It was built as part of a DeepSpace hiring exercise and is published under the MIT license.
+Faultline is an open-source project: a flight recorder and time machine for software failures, built on DeepSpace and published under the MIT license.
 
 ## What is real
 

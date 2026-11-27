@@ -52,7 +52,7 @@ Smaller fixes: the report heading still said "Postmortem" (now "Incident report"
 | Presence | `usePresenceRoom` in `src/features/cloud/useCloudIncident.ts`; gate `canJoinPresence` in `src/server/realtime-routes.ts` | Who else is looking | Live: an anonymous socket was admitted and saw viewers' ids and names (defect, fixed). After the fix: anonymous and forged-token sockets refused; the owner's session admitted and sees its other session; a nonexistent incident and a non-incident scope refused even with a valid token. 4 unit tests in CI | Pass (fixed during this audit) |
 | External integrations (Anthropic, GitHub, Exa via the integration proxy) | `src/server/integrations.ts`, `src/integrations.ts` | Optional AI summary, commit import, remediation search | Not exercised: they are off unless the owner sets `FAULTLINE_INTEGRATIONS=enabled`, and calls are billed to the owner's DeepSpace credits. The owner has not authorized charges | Implemented, disabled, unverified |
 
-The original exercise **requires** the six native primitives (records and sync, R2 storage, JobRoom, auth, server-enforced permissions, deployment). It asks for three external integration-proxy endpoints only "if the exercise requires" them. Six native integrations are verified working above; the external ones are not counted.
+Faultline is built on six native DeepSpace primitives (records and sync, R2 storage, JobRoom, auth, server-enforced permissions, deployment), all verified working above. The integration-proxy features are optional and are not counted as working.
 
 ## Storage ownership (commit 48ad288 and later hardening)
 

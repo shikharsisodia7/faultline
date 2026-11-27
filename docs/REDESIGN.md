@@ -40,5 +40,5 @@ Faultline borrows principles, not assets: its texture is an original topographic
 - [x] Vercel deployment verified: https://faultline-coral.vercel.app (direct routes, refresh, desktop + phone)
 - [x] DeepSpace deployment verified: https://faultline.app.space
 - [x] Visual QA at 1920, 1440, 1280, 768, 390 (`docs/screenshots/`); axe-core: 0 violations on the six main pages
-- [x] README, INTERVIEW.md, screenshots, demo GIF
+- [x] README, screenshots, demo GIF
 - [ ] Usability testing with real people (not done; automated acceptance tests are not a substitute — see HUMAN-VERIFICATION.md)
