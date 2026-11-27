@@ -29,8 +29,11 @@ jobs:
       - name: Engine tests
         run: npm run test:engine
 
-      - name: Server and schema tests
-        run: npx vitest run src/lib src/server src/schemas
+      - name: Server, schema and script tests
+        run: npx vitest run src/lib src/server src/schemas scripts
+
+      - name: Deployment secret preflight (tracked source)
+        run: node scripts/deploy-preflight.mjs .
 
       - name: Type check (engine)
         run: npm run typecheck:engine

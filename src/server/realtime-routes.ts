@@ -124,6 +124,41 @@ async function resolveDocsYjsRole(
   return null
 }
 
+/** Runs one RecordRoom tool as the app (the same internal path the Yjs guard uses). */
+async function appTool(env: Env, tool: string, params: Record<string, unknown>): Promise<{ success?: boolean; data?: unknown } | null> {
+  try {
+    const stub = env.RECORD_ROOMS.get(env.RECORD_ROOMS.idFromName(`app:${env.DEEPSPACE_APP_ID}`))
+    const res = await stub.fetch(
+      new Request('https://internal/api/tools/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': env.OWNER_USER_ID, 'X-App-Action': 'true' },
+        body: JSON.stringify({ tool, params }),
+      }),
+    )
+    return (await res.json()) as { success?: boolean; data?: unknown }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Presence follows workspace membership, exactly like the records. Faultline
+ * only opens `incident:<id>` presence rooms; a caller may join one only when
+ * signed in and an active member of that incident's workspace. Anything
+ * else, including lookup errors, is refused.
+ */
+export async function canJoinPresence(env: Env, scopeId: string, userId: string | null): Promise<boolean> {
+  if (!userId) return false
+  const match = /^incident:([A-Za-z0-9_-]{1,80})$/.exec(scopeId)
+  if (!match) return false
+  const inc = await appTool(env, 'records.get', { collection: 'incidents', recordId: match[1] })
+  const workspaceId = inc?.success ? (inc.data as { record?: { data?: { workspaceId?: string } } })?.record?.data?.workspaceId : undefined
+  if (!workspaceId) return false
+  const m = await appTool(env, 'records.query', { collection: 'team_members', where: { teamId: workspaceId, userId }, limit: 1 })
+  const row = m?.success ? (m.data as { records?: Array<{ data?: { status?: string } }> })?.records?.[0]?.data : undefined
+  return Boolean(row) && row!.status !== 'removed'
+}
+
 export function registerRealtimeRoutes(app: Hono<AppContext>): void {
   app.get(
     '/ws/:roomId',
@@ -154,10 +189,18 @@ export function registerRealtimeRoutes(app: Hono<AppContext>): void {
     ),
   )
 
-  app.get(
-    '/ws/presence/:scopeId',
-    wsRoute((env) => env.PRESENCE_ROOMS),
-  )
+  // Presence carries viewers' names and playheads, so it is gated like the
+  // records: a verified token and active membership in the incident's
+  // workspace (found open to anonymous sockets on the live app, 2026-11-26).
+  app.get('/ws/presence/:scopeId', async (c) => {
+    const scopeId = c.req.param('scopeId')
+    const token = new URL(c.req.url).searchParams.get('token')
+    const auth = token ? (await verifyJwt(jwtConfig(c.env), token)).result : null
+    if (!auth) return new Response('Unauthorized', { status: 401 })
+    if (!(await canJoinPresence(c.env, scopeId, auth.userId))) return new Response('Forbidden', { status: 403 })
+    const stub = c.env.PRESENCE_ROOMS.get(c.env.PRESENCE_ROOMS.idFromName(scopeId))
+    return stub.fetch(authenticatedRoomRequest(c.req.raw, auth))
+  })
 
   app.get(
     '/ws/cron/:roomId',
